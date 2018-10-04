@@ -46,6 +46,8 @@ namespace Cross
         private bool isServer = false;
         private bool isClient = false;
         Connection _connection;
+        Thread _clientThread;
+
 
         public MainForm()
         {
@@ -352,8 +354,8 @@ namespace Cross
             // запуск сервера
             _connection = new Connection(_serverPort);
             _connection.Chatted += writeMessage;
-            Thread clientThread = new Thread(new ThreadStart(_connection.StartServer));
-            clientThread.Start();
+            _clientThread = new Thread(new ThreadStart(_connection.StartServer));
+            _clientThread.Start();
             isServer = true;
 
         }
@@ -397,10 +399,16 @@ namespace Cross
                 SendTextButton_Click(this, new EventArgs());
             }
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _connection.Terminate();
+            _clientThread.Abort();
+        }
         /*
         TODO:
          - счет
-         - закрытие треда сервера и клиента, когда закрываешь программу
+         //- закрытие треда сервера и клиента, когда закрываешь программу
          //- сделать нормальное разделение на Сервер и Клиент. Либо объединить это всё в один класс
          - запрещать несколько подключений на сервере
          - хранить значения isClient и isServer в классе Connection

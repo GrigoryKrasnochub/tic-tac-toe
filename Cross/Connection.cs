@@ -36,6 +36,7 @@ namespace Cross
             _client = _listener.AcceptTcpClient();
             _stream = _client.GetStream();
             Console.WriteLine("Подключился клиент");
+            _listener.Stop();
 
             ProcessConnection();
         }
@@ -101,9 +102,10 @@ namespace Cross
             }
         }
 
-        public void TerminateServer()
+        public void Terminate()
         {
-            // TODO
+            if (_listener != null) _listener.Stop();
+            if (_stream != null) _stream.Close();
         }
     }
 
