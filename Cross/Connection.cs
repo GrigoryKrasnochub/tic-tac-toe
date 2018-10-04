@@ -17,11 +17,17 @@ namespace Cross
         private TcpClient _client;
         private NetworkStream _stream;
 
-        public delegate void MessageReceiveHandler(string message);
+        public delegate void StringMessageReceiveHandler(string message);
+        public delegate void VoidMessageReceiveHandler();
+
         // событие о получении сообщения в чате
-        public event MessageReceiveHandler Chatted;
+        public event StringMessageReceiveHandler Chatted;
+
+        // событие о запросе на подключение
+        public event VoidMessageReceiveHandler Requested;
+        
         // событие о ходе противника
-        public event MessageReceiveHandler Moved;
+        public event StringMessageReceiveHandler Moved;
 
         public Connection(int port) { _port = port; }
         public Connection(int port, string ip) { _port = port; _ip = ip; }
@@ -48,16 +54,21 @@ namespace Cross
             Console.WriteLine("Подключился к серверу");
             _stream = _client.GetStream();
 
-            byte[] data = Encoding.Unicode.GetBytes("Подключаюсь");
-            _stream.Write(data, 0, data.Length);
+            SendRequest();
 
             ProcessConnection();
+        }
+
+        public void SendRequest()
+        {
+            byte[] data = Encoding.Unicode.GetBytes("request");
+            _stream.Write(data, 0, data.Length);
         }
 
 
         public void SendMessage(string message)
         {
-            byte[] data = Encoding.Unicode.GetBytes(message);
+            byte[] data = Encoding.Unicode.GetBytes("chat" + message);
             _stream.Write(data, 0, data.Length);
 
         }
@@ -85,7 +96,8 @@ namespace Cross
                     if (message == "") continue;
 
                     // TODO куча ифов для определения типа сообщения и создания нужных событий
-                    Chatted(message);
+                    if (message.StartsWith("chat")) Chatted(message.Substring("chat".Length - 1));
+                    if (message.StartsWith("request")) Requested();
                 }
             }
             catch (Exception ex)

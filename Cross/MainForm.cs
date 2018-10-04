@@ -344,16 +344,30 @@ namespace Cross
         }
 
 
-        public void writeMessage(string message)
+        public void WriteMessage(string message)
         {
             chatTextBox.Invoke((MethodInvoker)(() => chatTextBox.AppendText("Соперник: " + message + "\n")));
+        }
+
+        public void ShowRequestMessage()
+        {
+            DialogResult dialogResult = MessageBox.Show("Принять запрос на игру?", "Запрос на подключение", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                // TODO
+            }
+            else if (dialogResult == DialogResult.No)
+            {
+                // TODO
+            }
         }
 
         private void startServerButton_Click(object sender, EventArgs e)
         {
             // запуск сервера
             _connection = new Connection(_serverPort);
-            _connection.Chatted += writeMessage;
+            _connection.Chatted += WriteMessage;
+            _connection.Requested += ShowRequestMessage;
             _clientThread = new Thread(new ThreadStart(_connection.StartServer));
             _clientThread.Start();
             isServer = true;
@@ -374,7 +388,7 @@ namespace Cross
             ip = m.Value;
 
             _connection = new Connection(_serverPort, ip);
-            _connection.Chatted += writeMessage;
+            _connection.Chatted += WriteMessage;
             Thread clientThread = new Thread(new ThreadStart(_connection.StartClient));
             clientThread.Start();
             isClient = true;
@@ -402,8 +416,8 @@ namespace Cross
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _connection.Terminate();
-            _clientThread.Abort();
+            if (_connection != null) _connection.Terminate();
+            if (_clientThread != null) _clientThread.Abort();
         }
         /*
         TODO:
