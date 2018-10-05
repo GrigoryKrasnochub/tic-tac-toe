@@ -17,17 +17,22 @@ namespace Cross
         private TcpClient _client;
         private NetworkStream _stream;
 
+        private int X;
+        private int Y;
+        private int W;
+
         public delegate void StringMessageReceiveHandler(string message);
-        public delegate void VoidMessageReceiveHandler();
+        public delegate void TurnReceiveHandler(int x, int y);
+        public delegate void GameSettingsReceiveHandler(int x, int y, int w);
 
         // событие о получении сообщения в чате
         public event StringMessageReceiveHandler Chatted;
 
         // событие о запросе на подключение
-        public event VoidMessageReceiveHandler Requested;
+        public event GameSettingsReceiveHandler Requested;
         
         // событие о ходе противника
-        public event StringMessageReceiveHandler Moved;
+        public event TurnReceiveHandler Moved;
 
         public Connection(int port) { _port = port; }
         public Connection(int port, string ip) { _port = port; _ip = ip; }
@@ -47,6 +52,13 @@ namespace Cross
             ProcessConnection();
         }
 
+        public void SetSettings(int x, int y, int w)
+        {
+            X = x;
+            Y = y;
+            W = w;
+        }
+
         public void StartClient()
         {
             TcpClient _client = new TcpClient();
@@ -54,14 +66,19 @@ namespace Cross
             Console.WriteLine("Подключился к серверу");
             _stream = _client.GetStream();
 
-            SendRequest();
-
+            SendRequest(X, Y, W);
             ProcessConnection();
         }
 
-        public void SendRequest()
+        public void SendRequest(int x, int y, int w)
         {
-            byte[] data = Encoding.Unicode.GetBytes("request");
+            byte[] data = Encoding.Unicode.GetBytes("request" + x.ToString() + "," + y.ToString() + "," + w.ToString());
+            _stream.Write(data, 0, data.Length);
+        }
+
+        public void SendMove(int x, int y)
+        {
+            byte[] data = Encoding.Unicode.GetBytes("turn" + x.ToString() + "," + y.ToString());
             _stream.Write(data, 0, data.Length);
         }
 
@@ -94,10 +111,31 @@ namespace Cross
                     string message = builder.ToString();
 
                     if (message == "") continue;
+                    if (message != "")
+                    {
+                        Console.WriteLine("Получил сообщение: " + message);
+                    }
 
                     // TODO куча ифов для определения типа сообщения и создания нужных событий
-                    if (message.StartsWith("chat")) Chatted(message.Substring("chat".Length - 1));
-                    if (message.StartsWith("request")) Requested();
+                    if (message.StartsWith("chat")) Chatted(message.Substring("chat".Length));
+                    if (message.StartsWith("request"))
+                    {
+                        
+                        string request_msg = message.Substring("request".Length);
+                        string[] request_mas = request_msg.Split(',');
+                        int x = int.Parse(request_mas[0]);
+                        int y = int.Parse(request_mas[1]);
+                        int w = int.Parse(request_mas[2]);
+                        Requested(x, y, w);
+                    }
+                    if (message.StartsWith("turn")) {
+                        string turn_msg = message.Substring("turn".Length);
+                        string[] mas = turn_msg.Split(',');
+                        int x = int.Parse(mas[0]);
+                        int y = int.Parse(mas[1]);
+                        Moved(x,y);
+                    }
+
                 }
             }
             catch (Exception ex)

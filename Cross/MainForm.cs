@@ -349,7 +349,7 @@ namespace Cross
             chatTextBox.Invoke((MethodInvoker)(() => chatTextBox.AppendText("Соперник: " + message + "\n")));
         }
 
-        public void ShowRequestMessage()
+        public void ShowRequestMessage(int x, int y, int w)
         {
             DialogResult dialogResult = MessageBox.Show("Принять запрос на игру?", "Запрос на подключение", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
@@ -360,7 +360,34 @@ namespace Cross
             {
                 // TODO
             }
+
+            X = x;
+            Y = y;
+            W = w;
+            gr.Clear(this.BackColor);
+            DrawMap(X, Y);
+            stageCounter = 0;
+            isGameStarted = true;
+            isGameEnded = false;
+            playGrounds = new int[X, Y];
+            turn = false;
         }
+
+        public void DrowEnemyTurn(int x, int y)
+        {
+            // TODO
+
+            playGrounds[x, y] = turn ? 1 : 0;
+            DrawMap(X, Y);
+            FillMap();
+            stageCounter += 1;
+            WinnerSearcher(playGrounds);
+            turn = !turn;
+
+
+            //chatTextBox.Invoke((MethodInvoker)(() => chatTextBox.AppendText("Соперник: " + message + "\n")));
+        }
+
 
         private void startServerButton_Click(object sender, EventArgs e)
         {
@@ -368,6 +395,7 @@ namespace Cross
             _connection = new Connection(_serverPort);
             _connection.Chatted += WriteMessage;
             _connection.Requested += ShowRequestMessage;
+            _connection.Moved += DrowEnemyTurn;
             _clientThread = new Thread(new ThreadStart(_connection.StartServer));
             _clientThread.Start();
             isServer = true;
@@ -388,10 +416,12 @@ namespace Cross
             ip = m.Value;
 
             _connection = new Connection(_serverPort, ip);
+            _connection.SetSettings(X, Y, W);
             _connection.Chatted += WriteMessage;
+            //_connection.Moved += DrowEnemyTurn;
             Thread clientThread = new Thread(new ThreadStart(_connection.StartClient));
             clientThread.Start();
-            isClient = true;
+            isClient = true; //?
         }
 
         private void SendTextButton_Click(object sender, EventArgs e)
@@ -428,6 +458,7 @@ namespace Cross
          - хранить значения isClient и isServer в классе Connection
          - сделать обработку отсутствия подключения (при отправке в чате например)
          - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
+         - зачеркивать не только первую попавшуюся комбинацию
         */
     }
 }
