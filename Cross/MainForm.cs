@@ -45,6 +45,7 @@ namespace Cross
         private readonly int _serverPort = 33377;
         private bool isServer = false;
         private bool isClient = false;
+        private bool isOnlineGame = false;
         Connection _connection;
         Thread _clientThread;
 
@@ -371,13 +372,14 @@ namespace Cross
             isGameEnded = false;
             playGrounds = new int[X, Y];
             turn = false;
+            isOnlineGame = true;
         }
 
         public void DrowEnemyTurn(int x, int y)
         {
             // TODO
 
-            playGrounds[x, y] = turn ? 1 : 0;
+            playGrounds[x, y] = turn ? 1 : 2;
             DrawMap(X, Y);
             FillMap();
             stageCounter += 1;
@@ -399,6 +401,7 @@ namespace Cross
             _clientThread = new Thread(new ThreadStart(_connection.StartServer));
             _clientThread.Start();
             isServer = true;
+            isOnlineGame = true;
 
         }
 
@@ -459,6 +462,7 @@ namespace Cross
          - сделать обработку отсутствия подключения (при отправке в чате например)
          - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
          - зачеркивать не только первую попавшуюся комбинацию
+         - обработка отказа от игры на клиенте
         */
     }
 }
