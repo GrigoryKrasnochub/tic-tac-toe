@@ -39,7 +39,7 @@ namespace Cross
         private int y2 = 0;
         private int longX = 0;
         private int longY = 0;
-        private int[,] playGrounds;
+        private int[,] playGrounds ;
         public bool turn = true;
 
         private readonly int _serverPort = 33377;
@@ -48,7 +48,7 @@ namespace Cross
         private bool isOnlineGame = false;
         Connection _connection;
         Thread _clientThread;
-
+        Drawer drawer;
 
         public MainForm()
         {
@@ -69,8 +69,11 @@ namespace Cross
             X = form.GetX();
             Y = form.GetY();
             W = form.GetW();
+            drawer = new Drawer(form.GetX(), form.GetY(), gr,Simbols);//Экземпляр рисовалки
             gr.Clear(this.BackColor);
-            DrawMap(X, Y);
+            longX = X * shift;
+            longY = Y * shift;
+            drawer.DrawMap();
             stageCounter = 0;
             isGameStarted = true;
             isGameEnded = false;
@@ -80,30 +83,14 @@ namespace Cross
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            FillMap();
-            DrawMap(X, Y);
-            if (isGameEnded)crossOutWinner(x1, y1, x2, y2);
-        }
-
-        private void DrawMap(int x, int y){
-           // gr.Clear(this.BackColor);
-             offsetX=50;
-             offsetY=50;
-             shift = 50;
-             longX = x*shift;
-             longY=y*shift;
-            Pen p = new Pen(Color.Black, 2);
             
-
-            for (int i = 0; i < x+1;i++ ) // Вертикали
+            if (drawer != null)
             {
-                gr.DrawLine(p, offsetX + shift * i, offsetY, offsetX + shift * i, offsetY + longY);
+                drawer.DrawMap();
+                drawer.FillMap(playGrounds);
+                if (isGameEnded) drawer.crossOutWinner(x1, y1, x2, y2);
             }
-            for (int i = 0; i < y + 1; i++) // Горизонтали
-            {
-                gr.DrawLine(p, offsetX, offsetY + shift * i, offsetX+longX, offsetY + shift * i);
-            }
-        
+            
         }
 
         private void Form1_MouseClick(object sender, MouseEventArgs e)
@@ -140,8 +127,8 @@ namespace Cross
             int test = playGrounds[xPos, yPos];
             playGrounds[xPos, yPos] = turn ? 1 : 2;
 
-            FillMap();
-            DrawMap(X, Y);
+            drawer.FillMap(playGrounds);
+            drawer.DrawMap();
             stageCounter += 1;//Счетчик хода
             WinnerSearcher(playGrounds);
             
@@ -149,54 +136,20 @@ namespace Cross
             
         }
 
-        private void FillMap(){
-            for (int i = 0; i < longX / shift; i++)
-            {
-                for (int j = 0; j < longY / shift; j++)
-                {
-                    if (playGrounds[i, j] == 1)
-                    {
-                        DrawCross(i, j);
-                    }
-                    if (playGrounds[i, j] == 2)
-                    {
-                        DrawCircle(i, j);
-                    }
-                }
-
-            }
-        }
-
-        private void DrawCross(int i, int j) {
-            Pen p = new Pen(Color.Red, 2);
-            Simbols.DrawLine(p, offsetX + shift * i, offsetY + shift * j, offsetX + shift * i+shift, offsetY + shift * j+shift);
-            Simbols.DrawLine(p, offsetX + shift * i+shift, offsetY + shift * j, offsetX + shift * i , offsetY + shift * j +shift);
-        }
-        private void DrawCircle(int i, int j)
-        {
-            Pen p = new Pen(Color.Blue, 2);
-            Simbols.DrawEllipse(p, offsetX + shift * i, offsetY + shift * j, shift, shift);
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             if (isGameStarted == true)
             {
                 gr.Clear(this.BackColor);
-                DrawMap(X, Y);
+                drawer.DrawMap();
                 playGrounds = new int[X, Y];
                 stageCounter = 0;
                 turn = true;
                 isGameEnded = false;
             }
         }
-        
-        private void crossOutWinner(int x1, int y1, int x2, int y2)
-        {
-            Pen p = new Pen(Color.Green, 4);
-            gr.DrawLine(p, offsetX + shift * x1 + shift/2, offsetY + shift * y1 + shift/2, offsetX + shift * x2 + shift/2, offsetY + shift * y2 + shift/2);
-        }
 
+        //Определение победителя два метода вниз
         private void WinnerSearcher(int [,] field) // Ищет и выводит победителя
         {
             int val = turn ? 1 : 2; // Чей ход того и проверяем, нельзя выиграть в чужой ход
@@ -226,7 +179,7 @@ namespace Cross
                         y1 = jj;
                         x2 = i;
                         y2 = j;
-                        crossOutWinner(ii, jj, i, j);
+                        drawer.crossOutWinner(ii, jj, i, j);
                         MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                         isGameEnded = true;
                         return;
@@ -256,7 +209,7 @@ namespace Cross
                             y1 =j;
                             x2 = i+W-1;
                             y2 = j+W-1;
-                            crossOutWinner(i, j, i + W - 1, j + W - 1);
+                            drawer.crossOutWinner(i, j, i + W - 1, j + W - 1);
                             MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                             isGameEnded = true;
                             return;
@@ -293,7 +246,7 @@ namespace Cross
                         y1 = ii;
                         x2 = j;
                         y2 = i;
-                        crossOutWinner(jj, ii, j, i);
+                        drawer.crossOutWinner(jj, ii, j, i);
                         MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                         isGameEnded = true;
                         return;
@@ -323,7 +276,7 @@ namespace Cross
                             y1 = j;
                             x2 = i-W+1;
                             y2 = j+W-1;
-                            crossOutWinner(i, j, i - W + 1, j + W - 1);
+                            drawer.crossOutWinner(i, j, i - W + 1, j + W - 1);
                             MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                             isGameEnded = true;
                             return;
@@ -366,7 +319,7 @@ namespace Cross
             Y = y;
             W = w;
             gr.Clear(this.BackColor);
-            DrawMap(X, Y);
+            drawer.DrawMap();
             stageCounter = 0;
             isGameStarted = true;
             isGameEnded = false;
@@ -380,8 +333,8 @@ namespace Cross
             // TODO
 
             playGrounds[x, y] = turn ? 1 : 2;
-            DrawMap(X, Y);
-            FillMap();
+            drawer.DrawMap();
+            drawer.FillMap(playGrounds);
             stageCounter += 1;
             WinnerSearcher(playGrounds);
             turn = !turn;
@@ -390,7 +343,7 @@ namespace Cross
             //chatTextBox.Invoke((MethodInvoker)(() => chatTextBox.AppendText("Соперник: " + message + "\n")));
         }
 
-
+        //Сервер
         private void startServerButton_Click(object sender, EventArgs e)
         {
             // запуск сервера
@@ -405,6 +358,7 @@ namespace Cross
 
         }
 
+        //Клиент
         private void connectToServerButton_Click(object sender, EventArgs e)
         {
             // подключение к серверу
@@ -427,6 +381,7 @@ namespace Cross
             isClient = true; //?
         }
 
+        //Отправляем сообщение
         private void SendTextButton_Click(object sender, EventArgs e)
         {
             if (sendMessageTextBox.Text == "") return;
@@ -439,6 +394,7 @@ namespace Cross
             sendMessageTextBox.Text = "";
         }
 
+        //Отправляем сообщение клавишей Enter
         private void sendMessageTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -447,6 +403,7 @@ namespace Cross
             }
         }
 
+        //Закрываем поток
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_connection != null) _connection.Terminate();
@@ -463,6 +420,8 @@ namespace Cross
          - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
          - зачеркивать не только первую попавшуюся комбинацию
          - обработка отказа от игры на клиенте
+         - изменение и создание поля после установки соединения
+         - не корректно отрисовывается поле 12/12 (перекрывается чатом)
         */
     }
 }
