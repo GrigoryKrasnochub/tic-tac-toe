@@ -9,10 +9,14 @@ namespace Cross
     class Drawer
     {
         //Экземпляр создается при начале новой игры, там же передаются настройки
-        public Drawer(int X, int Y, Graphics mapGraphics, Graphics Simbols)
+        public Drawer(int X, int Y, Graphics mapGraphics, Graphics Simbols, int userWindowHeight, int userWindowWidth, int rightOffset)
         {
+            this.userWindowHeight = userWindowHeight;
+            this.userWindowWidth = userWindowWidth;
             this.X = X;
             this.Y = Y;
+            offsetXdown = rightOffset+50;
+            shift = GetCellsSize();
             longX = X * shift;
             longY = Y * shift;
             this.mapGraphics = mapGraphics;
@@ -20,13 +24,18 @@ namespace Cross
         }
         private Graphics Simbols;
         private Graphics mapGraphics;
+        private int userWindowHeight;
+        private int userWindowWidth;
 
         //Настройки
-        private int X = 0; // число клеток по горизонтали (ЗАДАЕТСЯ ПРОГРАММНО)
-        private int Y = 0; //Число клеток по вертикали (ЗАДАЕТСЯ ПРОГРАММНО)
+        //Стоит помнить, что отступы справа и снизу номинально ими не являются, являсь лишь поправкой размера поля на данную величину
+        private int X ; // число клеток по горизонтали (ЗАДАЕТСЯ ПРОГРАММНО)
+        private int Y ; //Число клеток по вертикали (ЗАДАЕТСЯ ПРОГРАММНО)
         private int offsetX = 50; //отступ
+        private int offsetXdown = 500; //отступ предполагается отступ справа
         private int offsetY = 50; //отступ 
-        private int shift = 50; //размер клетки?
+        private int offsetYdown = 50; //отступ 
+        private int shift; //размер клетки?
         private int longX; //Длина по Х (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
         private int longY; //Длина по У (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
 
@@ -83,6 +92,15 @@ namespace Cross
         {
             Pen p = new Pen(Color.Green, 4);
             mapGraphics.DrawLine(p, offsetX + shift * x1 + shift / 2, offsetY + shift * y1 + shift / 2, offsetX + shift * x2 + shift / 2, offsetY + shift * y2 + shift / 2);
+        }
+
+        public int GetCellsSize()
+        {
+            int ratioX;
+            int ratioY;
+            ratioX = (userWindowWidth - offsetX - offsetXdown) / X;
+            ratioY = (userWindowHeight - offsetY - offsetYdown) / Y;
+            return ratioX < ratioY ? ratioX : ratioY;
         }
     }
 }

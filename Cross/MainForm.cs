@@ -55,6 +55,7 @@ namespace Cross
             InitializeComponent();
             gr = CreateGraphics();
             Simbols = CreateGraphics();
+            Console.WriteLine(ClientSize);
         }
 
         private void button1_Click(object sender, EventArgs e) //Новая
@@ -69,7 +70,10 @@ namespace Cross
             X = form.GetX();
             Y = form.GetY();
             W = form.GetW();
-            drawer = new Drawer(form.GetX(), form.GetY(), gr, Simbols);//Экземпляр рисовалки
+            drawer = new Drawer(form.GetX(), form.GetY(), gr, Simbols,ClientSize.Height,ClientSize.Width,chatTextBox.ClientSize.Width);//Экземпляр рисовалки
+            //ACHТUNG КОСТЫЛИ КОСТЫЛИКИ
+            shift = drawer.GetCellsSize();
+            //ACHТUNG КОСТЫЛИ КОСТЫЛИКИ
             gr.Clear(this.BackColor);
             longX = X * shift;
             longY = Y * shift;
@@ -323,7 +327,7 @@ namespace Cross
             X = x;
             Y = y;
             W = w;
-            drawer = new Drawer(X, Y, gr, Simbols);
+            drawer = new Drawer(X, Y, gr, Simbols, ClientSize.Height, ClientSize.Width, chatTextBox.ClientSize.Width);
             gr.Clear(this.BackColor);
             drawer.DrawMap();
             stageCounter = 0;
