@@ -9,7 +9,7 @@ namespace Cross
     class Drawer
     {
         //Экземпляр создается при начале новой игры, там же передаются настройки
-        public Drawer (int X,int Y,Graphics mapGraphics,Graphics Simbols)
+        public Drawer(int X, int Y, Graphics mapGraphics, Graphics Simbols)
         {
             this.X = X;
             this.Y = Y;
@@ -48,7 +48,7 @@ namespace Cross
             mapGraphics.Flush();
         }
 
-        public void FillMap( int [,] playGrounds)
+        public void FillMap(int[,] playGrounds)
         {
             for (int i = 0; i < longX / shift; i++)
             {

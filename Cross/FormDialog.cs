@@ -11,9 +11,9 @@ namespace Cross
 {
     public partial class FormDialog : Form
     {
-        private int X=3;
-        private int Y=3;
-        private int W=3;
+        private int X = 3;
+        private int Y = 3;
+        private int W = 3;
         public FormDialog()
         {
             InitializeComponent();
@@ -45,7 +45,8 @@ namespace Cross
                 X = int.Parse(comboBox1.Text);
                 return X;
             }
-            catch(Exception){
+            catch (Exception)
+            {
                 MessageBox.Show("Твое значение наша проблема! Нет! Мы про Х, подумай об этом!");
                 X = 3;
                 return X;
@@ -55,7 +56,7 @@ namespace Cross
         {
             try
             {
-                Y=int.Parse(comboBox2.Text);
+                Y = int.Parse(comboBox2.Text);
                 return Y;
             }
             catch (Exception)
@@ -69,7 +70,7 @@ namespace Cross
         {
             try
             {
-                W=int.Parse(comboBox3.Text);
+                W = int.Parse(comboBox3.Text);
                 return W;
             }
             catch (Exception)

@@ -22,7 +22,7 @@ namespace Cross
                 В конце партии isGameEnded должно быть приравнено у true
                 true это крестики
         */
-        private bool isGameStarted=false; // Начинали ли игру хоть раз?
+        private bool isGameStarted = false; // Начинали ли игру хоть раз?
         private bool isGameEnded = false; // Был ли отыгран раунд
         public Graphics gr;
         public Graphics Simbols;
@@ -39,7 +39,7 @@ namespace Cross
         private int y2 = 0;
         private int longX = 0;
         private int longY = 0;
-        private int[,] playGrounds ;
+        private int[,] playGrounds;
         public bool turn = true;
 
         private readonly int _serverPort = 33377;
@@ -53,7 +53,7 @@ namespace Cross
         public MainForm()
         {
             InitializeComponent();
-            gr= CreateGraphics();
+            gr = CreateGraphics();
             Simbols = CreateGraphics();
         }
 
@@ -69,7 +69,7 @@ namespace Cross
             X = form.GetX();
             Y = form.GetY();
             W = form.GetW();
-            drawer = new Drawer(form.GetX(), form.GetY(), gr,Simbols);//Экземпляр рисовалки
+            drawer = new Drawer(form.GetX(), form.GetY(), gr, Simbols);//Экземпляр рисовалки
             gr.Clear(this.BackColor);
             longX = X * shift;
             longY = Y * shift;
@@ -83,14 +83,14 @@ namespace Cross
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            
+
             if (drawer != null)
             {
                 drawer.DrawMap();
                 drawer.FillMap(playGrounds);
                 if (isGameEnded) drawer.crossOutWinner(x1, y1, x2, y2);
             }
-            
+
         }
 
         private void Form1_MouseClick(object sender, MouseEventArgs e)
@@ -113,12 +113,12 @@ namespace Cross
             }
             if (e.Y < offsetY || e.Y > offsetY + longY)
             {
-               return;
+                return;
             }
 
-            int xPos=(e.X - offsetX - (e.X - offsetX) % shift) / shift;
+            int xPos = (e.X - offsetX - (e.X - offsetX) % shift) / shift;
             int yPos = (e.Y - offsetY - (e.Y - offsetY) % shift) / shift;
-           
+
 
             if (playGrounds[xPos, yPos] != 0)
             {
@@ -131,9 +131,9 @@ namespace Cross
             drawer.DrawMap();
             stageCounter += 1;//Счетчик хода
             WinnerSearcher(playGrounds);
-            
+
             turn = !turn;
-            
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -150,7 +150,7 @@ namespace Cross
         }
 
         //Определение победителя два метода вниз
-        private void WinnerSearcher(int [,] field) // Ищет и выводит победителя
+        private void WinnerSearcher(int[,] field) // Ищет и выводит победителя
         {
             int val = turn ? 1 : 2; // Чей ход того и проверяем, нельзя выиграть в чужой ход
             for (int i = 0; i < field.GetLength(0); i++) // vertical
@@ -161,13 +161,13 @@ namespace Cross
                 int jj = -1;
                 for (int j = 0; j < field.GetLength(1); j++)
                 {
-                    if (field[i, j] == val) 
+                    if (field[i, j] == val)
                     {
                         countX -= 1;
                         ii = ii < 0 ? i : ii;
                         jj = jj < 0 ? j : jj;
                     }
-                    else 
+                    else
                     {
                         countX = W;
                         ii = -1;
@@ -194,21 +194,21 @@ namespace Cross
                 int countX = W;
                 for (int j = 0; j < field.GetLength(1); j++)
                 {
-                    if (field[i, j] == val && field.GetLength(1)-j>=W && field.GetLength(0) - i>=W)
+                    if (field[i, j] == val && field.GetLength(1) - j >= W && field.GetLength(0) - i >= W)
                     // определяет есть ли возможность найти выигрышную комбинацию, начиная с этой ячейки
                     {
-                        
+
                         for (int k = 0; k < W; k++)//если есть то проверем
                         {
                             if (field[i + k, j + k] == val)
-                            countX -= 1;
+                                countX -= 1;
                         }
                         if (countX == 0)
                         {
                             x1 = i;
-                            y1 =j;
-                            x2 = i+W-1;
-                            y2 = j+W-1;
+                            y1 = j;
+                            x2 = i + W - 1;
+                            y2 = j + W - 1;
                             drawer.crossOutWinner(i, j, i + W - 1, j + W - 1);
                             MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                             isGameEnded = true;
@@ -261,7 +261,7 @@ namespace Cross
                 int countX = W;
                 for (int j = 0; j < field.GetLength(1); j++)
                 {
-                    if (field[i, j] == val &&  i-W+1 >= 0 &&  j+W<= field.GetLength(1))
+                    if (field[i, j] == val && i - W + 1 >= 0 && j + W <= field.GetLength(1))
                     // определяет есть ли возможность найти выигрышную комбинацию, начиная с этой ячейки
                     {
 
@@ -274,8 +274,8 @@ namespace Cross
                         {
                             x1 = i;
                             y1 = j;
-                            x2 = i-W+1;
-                            y2 = j+W-1;
+                            x2 = i - W + 1;
+                            y2 = j + W - 1;
                             drawer.crossOutWinner(i, j, i - W + 1, j + W - 1);
                             MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                             isGameEnded = true;
@@ -300,7 +300,7 @@ namespace Cross
 
         public void WriteMessage(string message)
         {
-            chatTextBox.Invoke((MethodInvoker)(() => chatTextBox.AppendText("Соперник: " + message + "\n")));
+            chatTextBox.Invoke((MethodInvoker) (() => chatTextBox.AppendText("Соперник: " + message + "\n")));
         }
 
         public void ShowRequestMessage(int x, int y, int w)

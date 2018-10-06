@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 
 
-namespace Cross 
+namespace Cross
 {
     class Connection
     {
@@ -30,7 +30,7 @@ namespace Cross
 
         // событие о запросе на подключение
         public event GameSettingsReceiveHandler Requested;
-        
+
         // событие о ходе противника
         public event TurnReceiveHandler Moved;
 
@@ -120,7 +120,7 @@ namespace Cross
                     if (message.StartsWith("chat")) Chatted(message.Substring("chat".Length));
                     if (message.StartsWith("request"))
                     {
-                        
+
                         string request_msg = message.Substring("request".Length);
                         string[] request_mas = request_msg.Split(',');
                         int x = int.Parse(request_mas[0]);
@@ -128,12 +128,13 @@ namespace Cross
                         int w = int.Parse(request_mas[2]);
                         Requested(x, y, w);
                     }
-                    if (message.StartsWith("turn")) {
+                    if (message.StartsWith("turn"))
+                    {
                         string turn_msg = message.Substring("turn".Length);
                         string[] mas = turn_msg.Split(',');
                         int x = int.Parse(mas[0]);
                         int y = int.Parse(mas[1]);
-                        Moved(x,y);
+                        Moved(x, y);
                     }
 
                 }
