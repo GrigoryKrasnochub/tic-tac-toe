@@ -29,7 +29,10 @@ namespace Cross
         public event StringMessageReceiveHandler Chatted;
 
         // событие о запросе на подключение
-        public event GameSettingsReceiveHandler Requested;
+        public event StringMessageReceiveHandler Requested;
+
+        // событие о получении настроек
+        public event GameSettingsReceiveHandler GotSettings;
 
         // событие о ходе противника
         public event TurnReceiveHandler Moved;
@@ -49,6 +52,11 @@ namespace Cross
             Console.WriteLine("Подключился клиент");
             _listener.Stop();
 
+            IPEndPoint endPoint = (IPEndPoint) _client.Client.RemoteEndPoint;
+            string ip = endPoint.Address.ToString();
+            Requested(ip);
+
+            SendSettings(X, Y, W);
             ProcessConnection();
         }
 
@@ -66,13 +74,12 @@ namespace Cross
             Console.WriteLine("Подключился к серверу");
             _stream = _client.GetStream();
 
-            SendRequest(X, Y, W);
             ProcessConnection();
         }
 
-        public void SendRequest(int x, int y, int w)
+        public void SendSettings(int x, int y, int w)
         {
-            byte[] data = Encoding.Unicode.GetBytes("request" + x.ToString() + "," + y.ToString() + "," + w.ToString());
+            byte[] data = Encoding.Unicode.GetBytes("settings" + x.ToString() + "," + y.ToString() + "," + w.ToString());
             _stream.Write(data, 0, data.Length);
         }
 
@@ -111,22 +118,18 @@ namespace Cross
                     string message = builder.ToString();
 
                     if (message == "") continue;
-                    if (message != "")
-                    {
-                        Console.WriteLine("Получил сообщение: " + message);
-                    }
+                    Console.WriteLine("Получил сообщение: " + message);
 
                     // TODO куча ифов для определения типа сообщения и создания нужных событий
                     if (message.StartsWith("chat")) Chatted(message.Substring("chat".Length));
-                    if (message.StartsWith("request"))
+                    if (message.StartsWith("settings"))
                     {
-
-                        string request_msg = message.Substring("request".Length);
+                        string request_msg = message.Substring("settings".Length);
                         string[] request_mas = request_msg.Split(',');
                         int x = int.Parse(request_mas[0]);
                         int y = int.Parse(request_mas[1]);
                         int w = int.Parse(request_mas[2]);
-                        Requested(x, y, w);
+                        GotSettings(x, y, w);
                     }
                     if (message.StartsWith("turn"))
                     {
@@ -142,14 +145,13 @@ namespace Cross
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
                 Console.WriteLine("Соединение с клиентом разорвано");
             }
             finally
             {
-                if (_stream != null)
-                    _stream.Close();
-                if (_client != null)
-                    _client.Close();
+                if (_stream != null) _stream.Close();
+                if (_client != null) _client.Close();
             }
         }
 

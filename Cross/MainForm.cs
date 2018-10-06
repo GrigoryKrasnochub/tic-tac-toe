@@ -223,7 +223,6 @@ namespace Cross
             for (int i = 0; i < field.GetLength(1); i++) // horizont
             {
                 int countX = W;
-                // TODO проверить поворот координат точек ii jj при z = 1
                 int ii = -1;
                 int jj = -1;
                 for (int j = 0; j < field.GetLength(0); j++)
@@ -303,9 +302,9 @@ namespace Cross
             chatTextBox.Invoke((MethodInvoker) (() => chatTextBox.AppendText("Соперник: " + message + "\n")));
         }
 
-        public void ShowRequestMessage(int x, int y, int w)
+        public void ShowRequestMessage(string ip)
         {
-            DialogResult dialogResult = MessageBox.Show("Принять запрос на игру?", "Запрос на подключение", MessageBoxButtons.YesNo);
+            DialogResult dialogResult = MessageBox.Show("Принять запрос на игру от " + ip + "?", "Запрос на подключение", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
                 // TODO
@@ -315,9 +314,16 @@ namespace Cross
                 // TODO
             }
 
+            turn = false;
+            isOnlineGame = true;
+        }
+
+        public void GotSettingsHandler(int x, int y, int w)
+        {
             X = x;
             Y = y;
             W = w;
+            drawer = new Drawer(X, Y, gr, Simbols);
             gr.Clear(this.BackColor);
             drawer.DrawMap();
             stageCounter = 0;
@@ -346,8 +352,10 @@ namespace Cross
         //Сервер
         private void startServerButton_Click(object sender, EventArgs e)
         {
+            if (X == 0 || Y == 0 || W == 0) MessageBox.Show("Задайте настройки игры, прежде чем запустить сервер");
             // запуск сервера
             _connection = new Connection(_serverPort);
+            _connection.SetSettings(X, Y, W);
             _connection.Chatted += WriteMessage;
             _connection.Requested += ShowRequestMessage;
             _connection.Moved += DrawEnemyTurn;
@@ -373,8 +381,8 @@ namespace Cross
             ip = m.Value;
 
             _connection = new Connection(_serverPort, ip);
-            _connection.SetSettings(X, Y, W);
             _connection.Chatted += WriteMessage;
+            _connection.GotSettings += GotSettingsHandler;
             //_connection.Moved += DrawEnemyTurn;
             Thread clientThread = new Thread(new ThreadStart(_connection.StartClient));
             clientThread.Start();
