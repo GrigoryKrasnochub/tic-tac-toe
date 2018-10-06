@@ -99,8 +99,11 @@ namespace Cross
             int ratioX;
             int ratioY;
             ratioX = (userWindowWidth - offsetX - offsetXdown) / X;
+            //ratioX = ratioX % 2 == 1 ? ratioX - 1 : ratioX;
             ratioY = (userWindowHeight - offsetY - offsetYdown) / Y;
-            return ratioX < ratioY ? ratioX : ratioY;
+            //ratioY = ratioY % 2 == 1 ? ratioY - 1 : ratioY;
+            //return ratioX <= ratioY ? ratioX : ratioY;
+            return (ratioX < ratioY ? ratioX : ratioY) - (ratioX < ratioY ? ratioX : ratioY) % 2;
         }
     }
 }
