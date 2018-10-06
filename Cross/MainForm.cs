@@ -352,7 +352,20 @@ namespace Cross
         //Сервер
         private void startServerButton_Click(object sender, EventArgs e)
         {
-            if (X == 0 || Y == 0 || W == 0) MessageBox.Show("Задайте настройки игры, прежде чем запустить сервер");
+            if (_connection != null)
+            {
+                _connection.Terminate();
+                if (_clientThread != null) _clientThread.Abort();
+                _connection = null;
+                _clientThread = null;
+                startServerButton.Text = "Запустить сервер";
+                return;
+            }
+            if (_connection == null && (X == 0 || Y == 0 || W == 0))
+            {
+                MessageBox.Show("Задайте настройки игры, прежде чем запустить сервер");
+                return;
+            }
             // запуск сервера
             _connection = new Connection(_serverPort);
             _connection.SetSettings(X, Y, W);
@@ -363,7 +376,7 @@ namespace Cross
             _clientThread.Start();
             isServer = true;
             isOnlineGame = true;
-
+            startServerButton.Text = "Остановить сервер";
         }
 
         //Клиент
@@ -392,6 +405,7 @@ namespace Cross
         //Отправляем сообщение
         private void SendTextButton_Click(object sender, EventArgs e)
         {
+            if (_connection == null) return;
             if (sendMessageTextBox.Text == "") return;
             string message = "Я: " + sendMessageTextBox.Text + "\n";
             chatTextBox.AppendText(message);
@@ -411,6 +425,13 @@ namespace Cross
             }
         }
 
+        private void SetScore()
+        {
+            // TODO
+
+            //ScoreLabel.Text = ""
+        }
+
         //Закрываем поток
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -422,14 +443,15 @@ namespace Cross
          - счет
          //- закрытие треда сервера и клиента, когда закрываешь программу
          //- сделать нормальное разделение на Сервер и Клиент. Либо объединить это всё в один класс
-         - запрещать несколько подключений на сервере
+         //- запрещать несколько подключений на сервере
          - хранить значения isClient и isServer в классе Connection
-         - сделать обработку отсутствия подключения (при отправке в чате например)
+         //- сделать обработку отсутствия подключения (при отправке в чате например)
          - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
          - зачеркивать не только первую попавшуюся комбинацию
          - обработка отказа от игры на клиенте
+         - обрабатывать неудачные подключения (со стороны клиента)
          - изменение и создание поля после установки соединения
-         - не корректно отрисовывается поле 12/12 (перекрывается чатом)
+         //- не корректно отрисовывается поле 12/12 (перекрывается чатом)
         */
     }
 }
