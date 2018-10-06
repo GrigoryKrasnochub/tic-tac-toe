@@ -24,11 +24,11 @@ namespace Cross
         //Настройки
         private int X = 0; // число клеток по горизонтали (ЗАДАЕТСЯ ПРОГРАММНО)
         private int Y = 0; //Число клеток по вертикали (ЗАДАЕТСЯ ПРОГРАММНО)
-        private int offsetX = 50;//отступ
-        private int offsetY = 50;//отступ 
-        private int shift = 50;//размер клетки?
-        private int longX;//Длина по Х (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
-        private int longY;//Длина по У (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
+        private int offsetX = 50; //отступ
+        private int offsetY = 50; //отступ 
+        private int shift = 50; //размер клетки?
+        private int longX; //Длина по Х (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
+        private int longY; //Длина по У (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
 
         public void DrawMap()
         {

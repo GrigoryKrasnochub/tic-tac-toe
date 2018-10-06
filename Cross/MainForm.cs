@@ -328,7 +328,7 @@ namespace Cross
             isOnlineGame = true;
         }
 
-        public void DrowEnemyTurn(int x, int y)
+        public void DrawEnemyTurn(int x, int y)
         {
             // TODO
 
@@ -350,7 +350,7 @@ namespace Cross
             _connection = new Connection(_serverPort);
             _connection.Chatted += WriteMessage;
             _connection.Requested += ShowRequestMessage;
-            _connection.Moved += DrowEnemyTurn;
+            _connection.Moved += DrawEnemyTurn;
             _clientThread = new Thread(new ThreadStart(_connection.StartServer));
             _clientThread.Start();
             isServer = true;
@@ -375,7 +375,7 @@ namespace Cross
             _connection = new Connection(_serverPort, ip);
             _connection.SetSettings(X, Y, W);
             _connection.Chatted += WriteMessage;
-            //_connection.Moved += DrowEnemyTurn;
+            //_connection.Moved += DrawEnemyTurn;
             Thread clientThread = new Thread(new ThreadStart(_connection.StartClient));
             clientThread.Start();
             isClient = true; //?
