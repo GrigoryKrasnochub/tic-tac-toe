@@ -311,15 +311,16 @@ namespace Cross
             DialogResult dialogResult = MessageBox.Show("Принять запрос на игру от " + ip + "?", "Запрос на подключение", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
-                // TODO
+                _connection.SendSettings(X, Y, W);
+                turn = false;
+                isOnlineGame = true;
             }
             else if (dialogResult == DialogResult.No)
             {
-                // TODO
+                new Thread(new ThreadStart(() => startServerButton_Click(this, new EventArgs()))).Start();
+                //startServerButton_Click(this, new EventArgs());
             }
 
-            turn = false;
-            isOnlineGame = true;
         }
 
         public void GotSettingsHandler(int x, int y, int w)
@@ -349,8 +350,6 @@ namespace Cross
             WinnerSearcher(playGrounds);
             turn = !turn;
 
-
-            //chatTextBox.Invoke((MethodInvoker)(() => chatTextBox.AppendText("Соперник: " + message + "\n")));
         }
 
         //Сервер
@@ -359,10 +358,10 @@ namespace Cross
             if (_connection != null)
             {
                 _connection.Terminate();
+                startServerButton.Invoke((MethodInvoker)(() => startServerButton.Text = "Запустить сервер"));
                 if (_connectionThread != null) _connectionThread.Abort();
                 _connection = null;
                 _connectionThread = null;
-                startServerButton.Text = "Запустить сервер";
                 return;
             }
             if (_connection == null && (X == 0 || Y == 0 || W == 0))
@@ -372,7 +371,6 @@ namespace Cross
             }
             // запуск сервера
             _connection = new Connection(_serverPort);
-            _connection.SetSettings(X, Y, W);
             _connection.Chatted += WriteMessage;
             _connection.Requested += ShowRequestMessage;
             _connection.Moved += DrawEnemyTurn;
@@ -469,7 +467,7 @@ namespace Cross
          - хранить значения isClient и isServer в классе Connection
          - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
          - зачеркивать не только первую попавшуюся комбинацию
-         - обработка отказа от игры на клиенте
+         //- обработка отказа от игры на клиенте
          //- обрабатывать неудачные подключения (со стороны клиента)
          - изменение и создание поля после установки соединения
          - обрабатывать конкуренцию за mapGraphics и Simbols

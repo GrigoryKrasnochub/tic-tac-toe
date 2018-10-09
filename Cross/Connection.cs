@@ -17,10 +17,6 @@ namespace Cross
         private TcpClient _client;
         private NetworkStream _stream;
 
-        private int X;
-        private int Y;
-        private int W;
-
         public delegate void StringMessageReceiveHandler(string message);
         public delegate void TurnReceiveHandler(int x, int y);
         public delegate void GameSettingsReceiveHandler(int x, int y, int w);
@@ -47,7 +43,16 @@ namespace Cross
             _listener.Start();
             Console.WriteLine("Ожидание подключений...");
 
-            _client = _listener.AcceptTcpClient();
+            try
+            {
+                _client = _listener.AcceptTcpClient();
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine("Ошибка при попытке прослушивания соединений");
+            }
             _stream = _client.GetStream();
             Console.WriteLine("Подключился клиент");
             _listener.Stop();
@@ -56,16 +61,9 @@ namespace Cross
             string ip = endPoint.Address.ToString();
             Requested(ip);
 
-            SendSettings(X, Y, W);
             ProcessConnection();
         }
 
-        public void SetSettings(int x, int y, int w)
-        {
-            X = x;
-            Y = y;
-            W = w;
-        }
 
         public void StartClient()
         {
@@ -82,6 +80,7 @@ namespace Cross
             byte[] data = Encoding.Unicode.GetBytes("settings" + x.ToString() + "," + y.ToString() + "," + w.ToString());
             _stream.Write(data, 0, data.Length);
         }
+
 
         public void SendMove(int x, int y)
         {
