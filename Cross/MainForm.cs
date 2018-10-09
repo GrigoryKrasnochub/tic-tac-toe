@@ -47,7 +47,7 @@ namespace Cross
         private bool isClient = false;
         private bool isOnlineGame = false;
         Connection _connection;
-        Thread _clientThread;
+        Thread _connectionThread;
         Drawer drawer;
 
         public MainForm()
@@ -359,9 +359,9 @@ namespace Cross
             if (_connection != null)
             {
                 _connection.Terminate();
-                if (_clientThread != null) _clientThread.Abort();
+                if (_connectionThread != null) _connectionThread.Abort();
                 _connection = null;
-                _clientThread = null;
+                _connectionThread = null;
                 startServerButton.Text = "Запустить сервер";
                 return;
             }
@@ -376,8 +376,8 @@ namespace Cross
             _connection.Chatted += WriteMessage;
             _connection.Requested += ShowRequestMessage;
             _connection.Moved += DrawEnemyTurn;
-            _clientThread = new Thread(new ThreadStart(_connection.StartServer));
-            _clientThread.Start();
+            _connectionThread = new Thread(new ThreadStart(_connection.StartServer));
+            _connectionThread.Start();
             isServer = true;
             isOnlineGame = true;
             startServerButton.Text = "Остановить сервер";
@@ -397,13 +397,34 @@ namespace Cross
             }
             ip = m.Value;
 
+            if (_connection != null)
+            {
+                _connection.Terminate();
+                if (_connectionThread != null) _connectionThread.Abort();
+                _connection = null;
+                _connectionThread = null;
+            }
+
             _connection = new Connection(_serverPort, ip);
             _connection.Chatted += WriteMessage;
             _connection.GotSettings += GotSettingsHandler;
             //_connection.Moved += DrawEnemyTurn;
-            Thread clientThread = new Thread(new ThreadStart(_connection.StartClient));
-            clientThread.Start();
+            _connectionThread = new Thread(new ThreadStart(ConnectServer));
+            _connectionThread.Start();
             isClient = true; //?
+        }
+
+        private void ConnectServer()
+        {
+            try
+            {
+                _connection.StartClient();
+            }
+            catch (SocketException)
+            {
+                MessageBox.Show("Не удалось подключиться");
+                
+            }
         }
 
         //Отправляем сообщение
@@ -440,22 +461,18 @@ namespace Cross
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_connection != null) _connection.Terminate();
-            if (_clientThread != null) _clientThread.Abort();
+            if (_connectionThread != null) _connectionThread.Abort();
         }
         /*
         TODO:
          - счет
-         //- закрытие треда сервера и клиента, когда закрываешь программу
-         //- сделать нормальное разделение на Сервер и Клиент. Либо объединить это всё в один класс
-         //- запрещать несколько подключений на сервере
          - хранить значения isClient и isServer в классе Connection
-         //- сделать обработку отсутствия подключения (при отправке в чате например)
          - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
          - зачеркивать не только первую попавшуюся комбинацию
          - обработка отказа от игры на клиенте
-         - обрабатывать неудачные подключения (со стороны клиента)
+         //- обрабатывать неудачные подключения (со стороны клиента)
          - изменение и создание поля после установки соединения
-         //- не корректно отрисовывается поле 12/12 (перекрывается чатом)
+         - обрабатывать конкуренцию за mapGraphics и Simbols
         */
     }
 }

@@ -59,9 +59,9 @@ namespace Cross
 
         public void FillMap(int[,] playGrounds)
         {
-            for (int i = 0; i < longX / shift; i++)
+            for (int i = 0; i < playGrounds.GetLength(0); i++)
             {
-                for (int j = 0; j < longY / shift; j++)
+                for (int j = 0; j < playGrounds.GetLength(1); j++)
                 {
                     if (playGrounds[i, j] == 1)
                     {
@@ -99,10 +99,7 @@ namespace Cross
             int ratioX;
             int ratioY;
             ratioX = (userWindowWidth - offsetX - offsetXdown) / X;
-            //ratioX = ratioX % 2 == 1 ? ratioX - 1 : ratioX;
             ratioY = (userWindowHeight - offsetY - offsetYdown) / Y;
-            //ratioY = ratioY % 2 == 1 ? ratioY - 1 : ratioY;
-            //return ratioX <= ratioY ? ratioX : ratioY;
             return (ratioX < ratioY ? ratioX : ratioY) - (ratioX < ratioY ? ratioX : ratioY) % 2;
         }
     }
