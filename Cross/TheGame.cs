@@ -27,6 +27,8 @@ namespace Cross
         private int W;
         private int X;
         private int Y;
+        private int xPos;
+        private int yPos;
         private bool isOnlineGame = false;
         private bool yourOnlineTurn;
         private bool turn;
@@ -35,36 +37,36 @@ namespace Cross
         private bool isGameEnded = false; // Был ли отыгран раунд
         private Connection _connection = null;
         
-        public void  UserTurn(int eX, int eY)
+        public bool  UserTurn(int eX, int eY)
         {
             if (isOnlineGame && yourOnlineTurn != turn )
             {
-                return;
+                return false;
             }
             if (isGameEnded)
             {
-                return;
+                return false;
             }
             if (isGameStarted != true)
             {
-                return;
+                return false;
             }
             if (eX < offsetX || eX > offsetX + drawer.GetLongX())
             {
-                return;
+                return false;
             }
             if (eY < offsetY || eY > offsetY + drawer.GetLongY())
             {
-                return;
+                return false;
             }
 
-            int xPos = (eX - offsetX - (eX - offsetX) % shift) / shift;
-            int yPos = (eY - offsetY - (eY - offsetY) % shift) / shift;
+            xPos = (eX - offsetX - (eX - offsetX) % shift) / shift;
+            yPos = (eY - offsetY - (eY - offsetY) % shift) / shift;
 
 
             if (playGrounds[xPos, yPos] != 0)
             {
-                return;
+                return false;
             }
             int test = playGrounds[xPos, yPos];
             playGrounds[xPos, yPos] = turn ? 1 : 2;
@@ -72,15 +74,14 @@ namespace Cross
             drawer.FillMap(playGrounds);
             drawer.DrawMap();
             stageCounter += 1;//Счетчик хода
-            /*
-            if (isOnlineGame && _connection != null)
+            if (isOnlineGame)
             {
-                _connection.SendMove(xPos, yPos);
+                return true;
             }
-            */
             WinnerSearcher();
 
             turn = !turn;
+            return false;
         }
 
           //Определение победителя два метода вниз
@@ -275,5 +276,14 @@ namespace Cross
             playGrounds = new int[X, Y];
         }
 
+        public int GetXpos ()
+        {
+            return xPos;
+        }
+
+        public int GetYpos()
+        {
+            return yPos;
+        }
     }
 }

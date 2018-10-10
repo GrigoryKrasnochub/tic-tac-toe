@@ -90,7 +90,13 @@ namespace Cross
             {
                 return;
             }
-            game.UserTurn(e.X,e.Y);
+            if (game.UserTurn(e.X, e.Y) && _connection != null)
+            {
+                _connection.SendMove(game.GetXpos(), game.GetYpos());
+                game.WinnerSearcher();
+                game.SetTurn( !game.GetTurn());
+            }
+            
         }
 
         private void button2_Click(object sender, EventArgs e)
