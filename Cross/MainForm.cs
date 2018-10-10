@@ -22,34 +22,22 @@ namespace Cross
                 В конце партии isGameEnded должно быть приравнено у true
                 true это крестики
         */
-        private bool isGameStarted = false; // Начинали ли игру хоть раз?
-        private bool isGameEnded = false; // Был ли отыгран раунд
+
         public Graphics gr;
         public Graphics Simbols;
         private int stageCounter; // Счетчик шагов
-        private int offsetX = 50;
-        private int offsetY = 50;
-        private int shift = 50;
         private int X = 0;
         private int Y = 0;
         private int W = 0;
-        private int x1 = 0;
-        private int y1 = 0;
-        private int x2 = 0;
-        private int y2 = 0;
-        private int longX = 0;
-        private int longY = 0;
-        private int[,] playGrounds;
-        public bool turn = true;
+
 
         private readonly int _serverPort = 33377;
         private bool isServer = false;
         private bool isClient = false;
-        private bool isOnlineGame = false;
-        private bool yourOnlineTurn;
         Connection _connection;
         Thread _connectionThread;
         Drawer drawer;
+        TheGame game;
 
         public MainForm()
         {
@@ -67,33 +55,29 @@ namespace Cross
             {
                 return;
             }
-            turn = true;
+            
             X = form.GetX();
             Y = form.GetY();
             W = form.GetW();
             drawer = new Drawer(form.GetX(), form.GetY(), gr, Simbols,ClientSize.Height,ClientSize.Width,chatTextBox.ClientSize.Width);//Экземпляр рисовалки
-            //ACHТUNG КОСТЫЛИ КОСТЫЛИКИ
-            shift = drawer.GetCellsSize();
-            //ACHТUNG КОСТЫЛИ КОСТЫЛИКИ
+            game = new TheGame(drawer,form.GetW(), form.GetX(), form.GetY());
+            game.SetTurn(true);
             gr.Clear(this.BackColor);
-            longX = X * shift;
-            longY = Y * shift;
             drawer.DrawMap();
             stageCounter = 0;
-            isGameStarted = true;
-            isGameEnded = false;
-            playGrounds = new int[X, Y];
+            game.SetIsGameStarted (true);
+            game.SetIsGameEnded (false);
 
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
 
-            if (drawer != null)
+            if (drawer != null && game != null)
             {
                 drawer.DrawMap();
-                drawer.FillMap(playGrounds);
-                if (isGameEnded) drawer.crossOutWinner(x1, y1, x2, y2);
+                drawer.FillMap(game.getPlayGrounds());
+                if (game.GetIsGameEnded()) drawer.crossOutWinner();
             }
 
         }
@@ -104,212 +88,21 @@ namespace Cross
             {
                 return;
             }
-            if (isOnlineGame && yourOnlineTurn != turn)
-            {
-                return;
-            }
-            if (isGameEnded)
-            {
-                return;
-            }
-            if (isGameStarted != true)
-            {
-                return;
-            }
-            if (e.X < offsetX || e.X > offsetX + longX)
-            {
-                return;
-            }
-            if (e.Y < offsetY || e.Y > offsetY + longY)
-            {
-                return;
-            }
-
-            int xPos = (e.X - offsetX - (e.X - offsetX) % shift) / shift;
-            int yPos = (e.Y - offsetY - (e.Y - offsetY) % shift) / shift;
-
-
-            if (playGrounds[xPos, yPos] != 0)
-            {
-                return;
-            }
-            int test = playGrounds[xPos, yPos];
-            playGrounds[xPos, yPos] = turn ? 1 : 2;
-
-            drawer.FillMap(playGrounds);
-            drawer.DrawMap();
-            stageCounter += 1;//Счетчик хода
-
-            if (isOnlineGame)
-            {
-                _connection.SendMove(xPos, yPos);
-            }
-            WinnerSearcher(playGrounds);
-
-            turn = !turn;
-
+            game.UserTurn(e.X,e.Y);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (isGameStarted == true)
+            if (game.GetIsGameStarted())
             {
                 gr.Clear(this.BackColor);
                 drawer.DrawMap();
-                playGrounds = new int[X, Y];
+                game.ResetPlayGrounds();
                 stageCounter = 0;
-                turn = true;
-                isGameEnded = false;
+                game.SetTurn (true);
+                game.SetIsGameEnded(false);
             }
         }
-
-        //Определение победителя два метода вниз
-        private void WinnerSearcher(int[,] field) // Ищет и выводит победителя
-        {
-            int val = turn ? 1 : 2; // Чей ход того и проверяем, нельзя выиграть в чужой ход
-            for (int i = 0; i < field.GetLength(0); i++) // vertical
-            {
-                int countX = W;
-                // TODO проверить поворот координат точек ii jj при z = 1
-                int ii = -1;
-                int jj = -1;
-                for (int j = 0; j < field.GetLength(1); j++)
-                {
-                    if (field[i, j] == val)
-                    {
-                        countX -= 1;
-                        ii = ii < 0 ? i : ii;
-                        jj = jj < 0 ? j : jj;
-                    }
-                    else
-                    {
-                        countX = W;
-                        ii = -1;
-                        jj = -1;
-                    }
-                    if (countX == 0)
-                    {
-                        x1 = ii;
-                        y1 = jj;
-                        x2 = i;
-                        y2 = j;
-                        drawer.crossOutWinner(ii, jj, i, j);
-                        MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
-                        isGameEnded = true;
-                        return;
-                    }
-
-                }
-
-            }
-
-            for (int i = 0; i < field.GetLength(0); i++) // diagonally \
-            {
-                int countX = W;
-                for (int j = 0; j < field.GetLength(1); j++)
-                {
-                    if (field[i, j] == val && field.GetLength(1) - j >= W && field.GetLength(0) - i >= W)
-                    // определяет есть ли возможность найти выигрышную комбинацию, начиная с этой ячейки
-                    {
-
-                        for (int k = 0; k < W; k++)//если есть то проверем
-                        {
-                            if (field[i + k, j + k] == val)
-                                countX -= 1;
-                        }
-                        if (countX == 0)
-                        {
-                            x1 = i;
-                            y1 = j;
-                            x2 = i + W - 1;
-                            y2 = j + W - 1;
-                            drawer.crossOutWinner(i, j, i + W - 1, j + W - 1);
-                            MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
-                            isGameEnded = true;
-                            return;
-                        }
-                        countX = W;
-                    }
-                }
-
-            }
-
-            for (int i = 0; i < field.GetLength(1); i++) // horizont
-            {
-                int countX = W;
-                int ii = -1;
-                int jj = -1;
-                for (int j = 0; j < field.GetLength(0); j++)
-                {
-                    if (field[j, i] == val)
-                    {
-                        countX -= 1;
-                        ii = ii < 0 ? i : ii;
-                        jj = jj < 0 ? j : jj;
-                    }
-                    else
-                    {
-                        countX = W;
-                        ii = -1;
-                        jj = -1;
-                    }
-                    if (countX == 0)
-                    {
-                        x1 = jj;
-                        y1 = ii;
-                        x2 = j;
-                        y2 = i;
-                        drawer.crossOutWinner(jj, ii, j, i);
-                        MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
-                        isGameEnded = true;
-                        return;
-                    }
-
-                }
-
-            }
-
-            for (int i = 0; i < field.GetLength(0); i++) // diagonally /
-            {
-                int countX = W;
-                for (int j = 0; j < field.GetLength(1); j++)
-                {
-                    if (field[i, j] == val && i - W + 1 >= 0 && j + W <= field.GetLength(1))
-                    // определяет есть ли возможность найти выигрышную комбинацию, начиная с этой ячейки
-                    {
-
-                        for (int k = 0; k < W; k++) //если есть то проверем
-                        {
-                            if (field[i - k, j + k] == val)
-                                countX -= 1;
-                        }
-                        if (countX == 0)
-                        {
-                            x1 = i;
-                            y1 = j;
-                            x2 = i - W + 1;
-                            y2 = j + W - 1;
-                            drawer.crossOutWinner(i, j, i - W + 1, j + W - 1);
-                            MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
-                            isGameEnded = true;
-                            return;
-                        }
-                        countX = W;
-                    }
-                }
-            }
-
-            // Ничья
-            if (isGameEnded == false)
-            {
-                if (stageCounter == X * Y)
-                {
-                    MessageBox.Show("Game Over");
-                    isGameEnded = true;
-                }
-            }
-        }
-
 
         public void WriteMessage(string message)
         {
@@ -323,13 +116,12 @@ namespace Cross
             {
                 _connection.SendSettings(X, Y, W);
                 stageCounter = 0;
-                isGameStarted = true;
-                isGameEnded = false;
+                game.SetIsGameStarted (true);
+                game.SetIsGameEnded(false);
                 //playGrounds = new int[X, Y];
-                turn = false;
-                isOnlineGame = true;
-                yourOnlineTurn = true;
-                isGameEnded = false;
+                game.SetTurn(false);
+                game.setIsOnlineGame (true);
+                game.setYourOnlineTurn (true);
 
             }
             else if (dialogResult == DialogResult.No)
@@ -346,29 +138,26 @@ namespace Cross
             Y = y;
             W = w;
             drawer = new Drawer(X, Y, gr, Simbols, ClientSize.Height, ClientSize.Width, chatTextBox.ClientSize.Width);
-            shift = drawer.GetCellsSize();
             gr.Clear(this.BackColor);
-            longX = X * shift;
-            longY = Y * shift;
             drawer.DrawMap();
             stageCounter = 0;
-            isGameStarted = true;
-            isGameEnded = false;
-            playGrounds = new int[X, Y];
-            turn = false;
-            isOnlineGame = true;
-            yourOnlineTurn = false;
+            game.SetIsGameStarted(true);
+            game.SetIsGameEnded(false);
+            game.ResetPlayGrounds();
+            game.SetTurn (false);
+            game.setIsOnlineGame(true);
+            game.setYourOnlineTurn(false);
         }
 
         public void DrawEnemyTurn(int x, int y)
         {
             // TODO
-
-            playGrounds[x, y] = turn ? 1 : 2;
+            bool turn = game.GetTurn();
+            game.ChangePlayGrounds(x, y, turn);
             drawer.DrawMap();
-            drawer.FillMap(playGrounds);
+            drawer.FillMap(game.getPlayGrounds());
             stageCounter += 1;
-            WinnerSearcher(playGrounds);
+            game.WinnerSearcher();
             turn = !turn;
 
         }
@@ -398,7 +187,8 @@ namespace Cross
             _connectionThread = new Thread(new ThreadStart(_connection.StartServer));
             _connectionThread.Start();
             isServer = true;
-            isOnlineGame = true;
+            game.setIsOnlineGame(true);
+
             startServerButton.Text = "Остановить сервер";
         }
 
