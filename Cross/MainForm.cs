@@ -30,7 +30,6 @@ namespace Cross
         private int Y = 0;
         private int W = 0;
 
-
         private readonly int _serverPort = 33377;
         private bool isServer = false;
         private bool isClient = false;
@@ -84,6 +83,10 @@ namespace Cross
 
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
+            if (game == null)
+            {
+                return;
+            }
             if (e.Button != MouseButtons.Left) //проверка на левую кнопку
             {
                 return;
@@ -93,7 +96,7 @@ namespace Cross
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (game.GetIsGameStarted())
+            if (game != null && game.GetIsGameStarted())
             {
                 gr.Clear(this.BackColor);
                 drawer.DrawMap();

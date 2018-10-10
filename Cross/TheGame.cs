@@ -8,7 +8,7 @@ namespace Cross
     class TheGame
     {
         public TheGame (Drawer drawer, int W, int X, int Y)
-            {
+        {
             this.drawer = drawer;
             offsetX = drawer.GetOffsetX();
             offsetY = drawer.GetOffsetY();
@@ -17,7 +17,8 @@ namespace Cross
             this.X = X;
             this.Y = Y;
             playGrounds = new int[X, Y];
-            }
+        }
+
         private int stageCounter = 0; 
         private Drawer drawer;
         private int offsetX;
@@ -33,64 +34,6 @@ namespace Cross
         private bool isGameStarted = false; // Начинали ли игру хоть раз?
         private bool isGameEnded = false; // Был ли отыгран раунд
         private Connection _connection = null;
-
-        public void SetConnection (Connection value)
-        {
-            _connection = value;
-        }
-        public void SetTurn(bool turn)
-        {
-            this.turn = turn;
-        }
-        
-        public void setIsOnlineGame(bool value)
-        {
-            isOnlineGame = value;
-        }
-
-        public void setYourOnlineTurn(bool value)
-        {
-            yourOnlineTurn = value;
-        }
-        public void SetIsGameStarted(bool isGamestr)
-        {
-            isGameStarted = isGamestr;
-        }
-
-        public void SetIsGameEnded(bool isGameend)
-        {
-            isGameEnded= isGameend;
-        }
-
-        public bool GetIsGameStarted()
-        {
-            return isGameStarted;
-        }
-
-        public bool GetIsGameEnded()
-        {
-            return isGameEnded;
-        }
-
-        public bool GetTurn()
-        {
-            return turn;
-        }
-
-        public void ChangePlayGrounds (int x, int y,bool turn)
-        {
-            playGrounds[x,y]= turn ? 1 : 2;
-        }
-        
-        public int [,] getPlayGrounds()
-        {
-            return playGrounds;
-        }
-
-        public void ResetPlayGrounds()
-        {
-            playGrounds = new int[X, Y];
-        }
         
         public void  UserTurn(int eX, int eY)
         {
@@ -271,5 +214,66 @@ namespace Cross
                 }
             }
         }
+
+        public void SetConnection(Connection value)
+        {
+            _connection = value;
+        }
+
+        public void SetTurn(bool turn)
+        {
+            this.turn = turn;
+        }
+
+        public void setIsOnlineGame(bool value)
+        {
+            isOnlineGame = value;
+        }
+
+        public void setYourOnlineTurn(bool value)
+        {
+            yourOnlineTurn = value;
+        }
+
+        public void SetIsGameStarted(bool isGamestr)
+        {
+            isGameStarted = isGamestr;
+        }
+
+        public void SetIsGameEnded(bool isGameend)
+        {
+            isGameEnded = isGameend;
+        }
+
+        public bool GetIsGameStarted()
+        {
+            return isGameStarted;
+        }
+
+        public bool GetIsGameEnded()
+        {
+            return isGameEnded;
+        }
+
+        public bool GetTurn()
+        {
+            return turn;
+        }
+
+        public void ChangePlayGrounds(int x, int y, bool turn)
+        {
+            playGrounds[x, y] = turn ? 1 : 2;
+        }
+
+        public int[,] getPlayGrounds()
+        {
+            return playGrounds;
+        }
+
+        public void ResetPlayGrounds()
+        {
+            playGrounds = new int[X, Y];
+        }
+
     }
 }
