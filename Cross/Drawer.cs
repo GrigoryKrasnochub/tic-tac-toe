@@ -141,5 +141,10 @@ namespace Cross
             ratioY = (userWindowHeight - offsetY - offsetYdown) / Y;
             return (ratioX < ratioY ? ratioX : ratioY) - (ratioX < ratioY ? ratioX : ratioY) % 2;
         }
+
+        public void ClearMap(Color color)
+        {
+            mapGraphics.Clear(color);
+        }
     }
 }

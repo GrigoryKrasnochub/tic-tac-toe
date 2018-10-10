@@ -23,8 +23,6 @@ namespace Cross
                 true это крестики
         */
 
-        public Graphics gr;
-        public Graphics Simbols;
         private int stageCounter; // Счетчик шагов
         private int X = 0;
         private int Y = 0;
@@ -41,8 +39,6 @@ namespace Cross
         public MainForm()
         {
             InitializeComponent();
-            gr = CreateGraphics();
-            Simbols = CreateGraphics();
             Console.WriteLine(ClientSize);
         }
 
@@ -57,10 +53,10 @@ namespace Cross
             X = form.GetX();
             Y = form.GetY();
             W = form.GetW();
-            drawer = new Drawer(form.GetX(), form.GetY(), gr, Simbols,ClientSize.Height,ClientSize.Width,chatTextBox.ClientSize.Width);//Экземпляр рисовалки
+            drawer = new Drawer(form.GetX(), form.GetY(), CreateGraphics(), CreateGraphics(), ClientSize.Height,ClientSize.Width,chatTextBox.ClientSize.Width);//Экземпляр рисовалки
             game = new TheGame(drawer,form.GetW(), form.GetX(), form.GetY());
             game.SetTurn(true);
-            gr.Clear(this.BackColor);
+            drawer.ClearMap(this.BackColor);
             drawer.DrawMap();
             stageCounter = 0;
             game.SetIsGameStarted (true);
@@ -103,7 +99,7 @@ namespace Cross
         {
             if (game != null && game.GetIsGameStarted())
             {
-                gr.Clear(this.BackColor);
+                drawer.ClearMap(this.BackColor);
                 drawer.DrawMap();
                 game.ResetPlayGrounds();
                 stageCounter = 0;
@@ -145,9 +141,9 @@ namespace Cross
             X = x;
             Y = y;
             W = w;
-            drawer = new Drawer(X, Y, gr, Simbols, ClientSize.Height, ClientSize.Width, chatTextBox.ClientSize.Width);
+            drawer = new Drawer(X, Y, CreateGraphics(), CreateGraphics(), ClientSize.Height, ClientSize.Width, chatTextBox.ClientSize.Width);
             game = new TheGame(drawer, w, x, y);
-            gr.Clear(this.BackColor);
+            drawer.ClearMap(this.BackColor);
             drawer.DrawMap();
             stageCounter = 0;
             game.SetIsGameStarted(true);
