@@ -214,7 +214,7 @@ namespace Cross
                 }
             }
         }
-
+        
         public void SetConnection(Connection value)
         {
             _connection = value;
@@ -260,7 +260,7 @@ namespace Cross
             return turn;
         }
 
-        public void ChangePlayGrounds(int x, int y, bool turn)
+        public void ChangePlayGrounds(int x, int y)
         {
             playGrounds[x, y] = turn ? 1 : 2;
         }

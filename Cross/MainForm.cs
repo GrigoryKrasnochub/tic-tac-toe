@@ -54,7 +54,6 @@ namespace Cross
             {
                 return;
             }
-            
             X = form.GetX();
             Y = form.GetY();
             W = form.GetW();
@@ -141,6 +140,7 @@ namespace Cross
             Y = y;
             W = w;
             drawer = new Drawer(X, Y, gr, Simbols, ClientSize.Height, ClientSize.Width, chatTextBox.ClientSize.Width);
+            game = new TheGame(drawer, w, x, y);
             gr.Clear(this.BackColor);
             drawer.DrawMap();
             stageCounter = 0;
@@ -155,13 +155,12 @@ namespace Cross
         public void DrawEnemyTurn(int x, int y)
         {
             // TODO
-            bool turn = game.GetTurn();
-            game.ChangePlayGrounds(x, y, turn);
+            game.ChangePlayGrounds(x, y);
             drawer.DrawMap();
             drawer.FillMap(game.getPlayGrounds());
             stageCounter += 1;
             game.WinnerSearcher();
-            turn = !turn;
+            game.SetTurn(!game.GetTurn());
 
         }
 
