@@ -46,6 +46,7 @@ namespace Cross
         private bool isServer = false;
         private bool isClient = false;
         private bool isOnlineGame = false;
+        private bool yourOnlineTurn;
         Connection _connection;
         Thread _connectionThread;
         Drawer drawer;
@@ -103,6 +104,10 @@ namespace Cross
             {
                 return;
             }
+            if (isOnlineGame && yourOnlineTurn != turn)
+            {
+                return;
+            }
             if (isGameEnded)
             {
                 return;
@@ -134,6 +139,11 @@ namespace Cross
             drawer.FillMap(playGrounds);
             drawer.DrawMap();
             stageCounter += 1;//Счетчик хода
+
+            if (isOnlineGame)
+            {
+                _connection.SendMove(xPos, yPos);
+            }
             WinnerSearcher(playGrounds);
 
             turn = !turn;
@@ -312,8 +322,15 @@ namespace Cross
             if (dialogResult == DialogResult.Yes)
             {
                 _connection.SendSettings(X, Y, W);
+                stageCounter = 0;
+                isGameStarted = true;
+                isGameEnded = false;
+                //playGrounds = new int[X, Y];
                 turn = false;
                 isOnlineGame = true;
+                yourOnlineTurn = true;
+                isGameEnded = false;
+
             }
             else if (dialogResult == DialogResult.No)
             {
@@ -329,7 +346,10 @@ namespace Cross
             Y = y;
             W = w;
             drawer = new Drawer(X, Y, gr, Simbols, ClientSize.Height, ClientSize.Width, chatTextBox.ClientSize.Width);
+            shift = drawer.GetCellsSize();
             gr.Clear(this.BackColor);
+            longX = X * shift;
+            longY = Y * shift;
             drawer.DrawMap();
             stageCounter = 0;
             isGameStarted = true;
@@ -337,6 +357,7 @@ namespace Cross
             playGrounds = new int[X, Y];
             turn = false;
             isOnlineGame = true;
+            yourOnlineTurn = false;
         }
 
         public void DrawEnemyTurn(int x, int y)
@@ -406,7 +427,7 @@ namespace Cross
             _connection = new Connection(_serverPort, ip);
             _connection.Chatted += WriteMessage;
             _connection.GotSettings += GotSettingsHandler;
-            //_connection.Moved += DrawEnemyTurn;
+            _connection.Moved += DrawEnemyTurn;
             _connectionThread = new Thread(new ThreadStart(ConnectServer));
             _connectionThread.Start();
             isClient = true; //?
