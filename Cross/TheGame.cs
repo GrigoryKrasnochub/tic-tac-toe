@@ -35,7 +35,7 @@ namespace Cross
         private int[,] playGrounds;
         private bool isGameStarted = false; // Начинали ли игру хоть раз?
         private bool isGameEnded = false; // Был ли отыгран раунд
-        private Connection _connection = null;
+        
         
         public bool  UserTurn(int eX, int eY)
         {
@@ -68,16 +68,19 @@ namespace Cross
             {
                 return false;
             }
+
             int test = playGrounds[xPos, yPos];
             playGrounds[xPos, yPos] = turn ? 1 : 2;
 
             drawer.FillMap(playGrounds);
             drawer.DrawMap();
             stageCounter += 1;//Счетчик хода
+
             if (isOnlineGame)
             {
                 return true;
             }
+
             WinnerSearcher();
 
             turn = !turn;
@@ -214,11 +217,6 @@ namespace Cross
                     isGameEnded = true;
                 }
             }
-        }
-        
-        public void SetConnection(Connection value)
-        {
-            _connection = value;
         }
 
         public void SetTurn(bool turn)
