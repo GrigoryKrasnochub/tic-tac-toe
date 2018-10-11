@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Cross
 {
@@ -87,7 +88,7 @@ namespace Cross
             return false;
         }
 
-          //Определение победителя два метода вниз
+        //Определение победителя два метода вниз
         public void WinnerSearcher() // Ищет и выводит победителя
         {
             int[,] field = playGrounds;
@@ -115,7 +116,7 @@ namespace Cross
                     if (countX == 0)
                     {
                         drawer.crossOutWinner(ii, jj, i, j);
-                        //MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                        MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                         isGameEnded = true;
                         return;
                     }
@@ -141,7 +142,7 @@ namespace Cross
                         if (countX == 0)
                         {
                             drawer.crossOutWinner(i, j, i + W - 1, j + W - 1);
-                            //MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                            MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                             isGameEnded = true;
                             return;
                         }
@@ -173,7 +174,7 @@ namespace Cross
                     if (countX == 0)
                     {
                         drawer.crossOutWinner(jj, ii, j, i);
-                        //MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                        MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                         isGameEnded = true;
                         return;
                     }
@@ -199,7 +200,7 @@ namespace Cross
                         if (countX == 0)
                         {
                             drawer.crossOutWinner(i, j, i - W + 1, j + W - 1);
-                            //MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                            MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
                             isGameEnded = true;
                             return;
                         }
@@ -213,7 +214,7 @@ namespace Cross
             {
                 if (stageCounter == X * Y)
                 {
-                    //MessageBox.Show("Game Over");
+                    MessageBox.Show("Game Over");
                     isGameEnded = true;
                 }
             }
