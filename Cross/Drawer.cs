@@ -26,6 +26,10 @@ namespace Cross
         private Graphics mapGraphics;
         private int userWindowHeight;
         private int userWindowWidth;
+        private int x1;
+        private int x2;
+        private int y1;
+        private int y2;
 
         //Настройки
         //Стоит помнить, что отступы справа и снизу номинально ими не являются, являсь лишь поправкой размера поля на данную величину
@@ -38,6 +42,31 @@ namespace Cross
         private int shift; //размер клетки?
         private int longX; //Длина по Х (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
         private int longY; //Длина по У (ВЫСЧИТЫВАЕТСЯ АВТОМАТИЧЕСКИ)
+
+        public int GetLongX()
+        {
+            return longX;
+        }
+
+        public int GetLongY()
+        {
+            return longY;
+        }
+
+        public int GetShift()
+        {
+            return shift;
+        }
+        
+        public int GetOffsetX()
+        {
+            return offsetX;
+        }
+
+        public int GetOffsetY()
+        {
+            return offsetY;
+        }
 
         public void DrawMap()
         {
@@ -90,6 +119,16 @@ namespace Cross
 
         public void crossOutWinner(int x1, int y1, int x2, int y2)
         {
+            this.x1 = x1;
+            this.x2 = x2;
+            this.y1 = y1;
+            this.y2 = y2;
+            Pen p = new Pen(Color.Green, 4);
+            mapGraphics.DrawLine(p, offsetX + shift * x1 + shift / 2, offsetY + shift * y1 + shift / 2, offsetX + shift * x2 + shift / 2, offsetY + shift * y2 + shift / 2);
+        }
+
+        public void crossOutWinner()
+        {
             Pen p = new Pen(Color.Green, 4);
             mapGraphics.DrawLine(p, offsetX + shift * x1 + shift / 2, offsetY + shift * y1 + shift / 2, offsetX + shift * x2 + shift / 2, offsetY + shift * y2 + shift / 2);
         }
@@ -101,6 +140,11 @@ namespace Cross
             ratioX = (userWindowWidth - offsetX - offsetXdown) / X;
             ratioY = (userWindowHeight - offsetY - offsetYdown) / Y;
             return (ratioX < ratioY ? ratioX : ratioY) - (ratioX < ratioY ? ratioX : ratioY) % 2;
+        }
+
+        public void ClearMap(Color color)
+        {
+            mapGraphics.Clear(color);
         }
     }
 }
