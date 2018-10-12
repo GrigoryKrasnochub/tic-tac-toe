@@ -35,6 +35,9 @@ namespace Cross
                 // присоединяемся к групповой рассылке
                 client.JoinMulticastGroup(groupAddress, TTL);
 
+                string myIP = Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString();
+                SendMessage("присоединился к чату");
+
                 while (true)
                 {
                     IPEndPoint remoteIp = null;
@@ -42,13 +45,11 @@ namespace Cross
                     if (data == null) continue;
                     string message = Encoding.Unicode.GetString(data);
                     if (message == "") continue;
-                    string ip = remoteIp.Address.ToString();
 
-                    string Host = System.Net.Dns.GetHostName();
-                    string myIP = System.Net.Dns.GetHostByName(Host).AddressList[0].ToString();
-                    if (myIP == ip) continue;
-                    // добавляем полученное сообщение в текстовое поле
-                    Chatted(ip, message);
+                    string clientIP = remoteIp.Address.ToString();
+
+                    if (myIP == clientIP) continue;
+                    Chatted(clientIP, message);
                 }
             }
             catch (Exception ex)
