@@ -42,9 +42,11 @@ namespace Cross
                     if (data == null) continue;
                     string message = Encoding.Unicode.GetString(data);
                     if (message == "") continue;
-                    //IPEndPoint endPoint = (IPEndPoint)client.Client.RemoteEndPoint;
-                    //string ip = endPoint.Address.ToString();
-                    string ip = "multicast";
+                    string ip = remoteIp.Address.ToString();
+
+                    string Host = System.Net.Dns.GetHostName();
+                    string myIP = System.Net.Dns.GetHostByName(Host).AddressList[0].ToString();
+                    if (myIP == ip) continue;
                     // добавляем полученное сообщение в текстовое поле
                     Chatted(ip, message);
                 }
