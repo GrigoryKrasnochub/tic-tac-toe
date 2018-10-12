@@ -31,7 +31,7 @@ namespace Cross
         {
             try
             {
-                client = new UdpClient(LOCALPORT);
+                client = new UdpClient(new IPEndPoint(IPAddress.Any, LOCALPORT));
                 // присоединяемся к групповой рассылке
                 client.JoinMulticastGroup(groupAddress, TTL);
 
@@ -47,12 +47,6 @@ namespace Cross
                     string ip = "multicast";
                     // добавляем полученное сообщение в текстовое поле
                     Chatted(ip, message);
-
-                    //this.Invoke(new MethodInvoker(() =>
-                    //{
-                    //    string time = DateTime.Now.ToShortTimeString();
-                    //    chatTextBox.Text = time + " " + message + "\r\n" + chatTextBox.Text;
-                    //}));
                 }
             }
             catch (Exception ex)
@@ -74,6 +68,11 @@ namespace Cross
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
+        }
+
+        public void Terminate()
+        {
+            client.Close();
         }
     }
 }

@@ -282,6 +282,7 @@ namespace Cross
         {
             if (_connection != null) _connection.Terminate();
             if (_connectionThread != null) _connectionThread.Abort();
+            if (chat != null) chat.Terminate();
             if (chatThread != null) chatThread.Abort();
         }
 
