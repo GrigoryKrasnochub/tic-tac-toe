@@ -95,8 +95,6 @@ namespace Cross
             if (game.UserTurn(e.X, e.Y) && _connection != null)
             {
                 _connection.SendMove(game.GetXpos(), game.GetYpos());
-                game.SearchWinner();
-                game.SetTurn(!game.GetTurn());
             }
             
         }
@@ -129,9 +127,9 @@ namespace Cross
                 game.SetIsGameStarted (true);
                 game.SetIsGameEnded(false);
                 //playGrounds = new int[X, Y];
-                game.SetTurn(false);
+                game.SetTurn(true);
                 game.setIsOnlineGame (true);
-                game.setYourOnlineTurn (true);
+                game.setYourOnlineTurn(false);
 
             }
             else if (dialogResult == DialogResult.No)
@@ -155,9 +153,9 @@ namespace Cross
             game.SetIsGameStarted(true);
             game.SetIsGameEnded(false);
             game.ResetPlayGrounds();
-            game.SetTurn (false);
+            game.SetTurn (true);
             game.setIsOnlineGame(true);
-            game.setYourOnlineTurn(false);
+            game.setYourOnlineTurn(true);
         }
 
         public void DrawEnemyTurn(int x, int y)
@@ -310,7 +308,7 @@ namespace Cross
 
 /*
 TODO:
-- пофиксить, что первый ход клиент делает с нолика
+//- пофиксить, что первый ход клиент делает с нолика
 - счет
 - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение, с кем игра, чей ход
 - зачеркивать не только первую попавшуюся комбинацию

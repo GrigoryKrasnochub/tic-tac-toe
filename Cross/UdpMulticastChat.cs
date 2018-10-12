@@ -77,7 +77,7 @@ namespace Cross
 
         public void Terminate()
         {
-            client.Close();
+            if (client != null) client.Close();
         }
     }
 }

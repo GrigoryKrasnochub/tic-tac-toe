@@ -38,7 +38,7 @@ namespace Cross
         private bool isGameEnded = false; // Был ли отыгран раунд
         
         
-        public bool  UserTurn(int eX, int eY)
+        public bool UserTurn(int eX, int eY)
         {
             /*
              Возвращает true, если ход был совершен, иначе false
