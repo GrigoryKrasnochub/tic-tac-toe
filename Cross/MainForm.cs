@@ -70,12 +70,13 @@ namespace Cross
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-
+            
             if (drawer != null && game != null)
             {
                 drawer.DrawMap();
                 drawer.FillMap(game.getPlayGrounds());
                 if (game.GetIsGameEnded()) drawer.crossOutWinner();
+                UpdateScore();
             }
 
         }
@@ -92,6 +93,8 @@ namespace Cross
             }
             if (game.UserTurn(e.X, e.Y) && _connection != null)
             {
+                UpdateScore();
+                game.WhoIsUser="";
                 _connection.SendMove(game.GetXpos(), game.GetYpos());
             }
             
@@ -106,6 +109,7 @@ namespace Cross
                 game.ResetGame();
                 if (game.getIsOnlineGame())
                 {
+                    game.ResetUser();
                     game.setYourOnlineTurn(!game.GetYourOnlineTurn());
                 }
             }
@@ -320,6 +324,10 @@ namespace Cross
             chatTextBox.Invoke((MethodInvoker)(() => richTextBox1.AppendText(ip + ": " + message + "\n")));
         }
 
+        public void UpdateScore()
+        {
+            ScoreLabel.Text = game.GetGameScore();
+        }
 /*
 TODO:
 //- пофиксить, что первый ход клиент делает с нолика

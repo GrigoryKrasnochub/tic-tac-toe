@@ -19,6 +19,10 @@ namespace Cross
             this.Y = Y;
             playGrounds = new int[X, Y];
         }
+        //true - cross false - null
+        private string whoIsUser=null; 
+        private byte userScore = 0;
+        private byte enemyScore = 0;
 
         private int stageCounter = 0; 
         private Drawer drawer;
@@ -37,7 +41,23 @@ namespace Cross
         private bool isGameStarted = false; // Начинали ли игру хоть раз?
         private bool isGameEnded = false; // Был ли отыгран раунд
         
-        
+        public string WhoIsUser
+        {
+            get{
+                return whoIsUser;
+            }
+            set{
+                if (whoIsUser == null)
+                {
+                    whoIsUser = !turn ? "1" : "2";
+                }
+            }
+        }
+        public void ResetUser ()
+        {
+            whoIsUser = null;
+        }
+
         public bool UserTurn(int eX, int eY)
         {
             /*
@@ -115,6 +135,7 @@ namespace Cross
                     {
                         drawer.crossOutWinner(ii, jj, i, j);
                         MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                        CalculateGameScore(turn ? 1 : 2);
                         isGameEnded = true;
                         return;
                     }
@@ -141,6 +162,7 @@ namespace Cross
                         {
                             drawer.crossOutWinner(i, j, i + W - 1, j + W - 1);
                             MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                            CalculateGameScore(turn ? 1 : 2);
                             isGameEnded = true;
                             return;
                         }
@@ -173,6 +195,7 @@ namespace Cross
                     {
                         drawer.crossOutWinner(jj, ii, j, i);
                         MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                        CalculateGameScore(turn ? 1 : 2);
                         isGameEnded = true;
                         return;
                     }
@@ -199,6 +222,7 @@ namespace Cross
                         {
                             drawer.crossOutWinner(i, j, i - W + 1, j + W - 1);
                             MessageBox.Show(string.Format("Победа {0}", turn ? "Крестики" : "Нолики"));
+                            CalculateGameScore(turn ? 1 : 2);
                             isGameEnded = true;
                             return;
                         }
@@ -299,6 +323,24 @@ namespace Cross
         public int GetYpos()
         {
             return yPos;
+        }
+
+        private void CalculateGameScore(int whoWin)
+        {
+            if (whoIsUser == whoWin.ToString())
+            {
+                userScore += 1;
+            }
+            else
+            {
+                enemyScore += 1;
+            }
+        }
+
+        public string GetGameScore()
+        {
+            Console.WriteLine("Противник : " + enemyScore.ToString() + "|" + " ВЫ : " + userScore.ToString());
+            return "Противник : " + enemyScore.ToString() + " |"+" ВЫ : " + userScore.ToString();        
         }
     }
 }
