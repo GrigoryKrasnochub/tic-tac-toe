@@ -40,6 +40,9 @@ namespace Cross
         
         public bool  UserTurn(int eX, int eY)
         {
+            /*
+             Возвращает true, если ход был совершен, иначе false
+            */
             if (isOnlineGame && yourOnlineTurn != turn )
             {
                 return false;
@@ -75,21 +78,16 @@ namespace Cross
 
             drawer.FillMap(playGrounds);
             drawer.DrawMap();
-            stageCounter += 1;//Счетчик хода
+            stageCounter += 1; //Счетчик хода
 
-            if (isOnlineGame)
-            {
-                return true;
-            }
-
-            WinnerSearcher();
-
+            SearchWinner();
             turn = !turn;
-            return false;
+            return true;
         }
 
-        //Определение победителя два метода вниз
-        public void WinnerSearcher() // Ищет и выводит победителя
+        // Определение победителя два метода вниз
+        // Ищет и выводит победителя
+        public void SearchWinner()
         {
             int[,] field = playGrounds;
             int val = turn ? 1 : 2; // Чей ход того и проверяем, нельзя выиграть в чужой ход

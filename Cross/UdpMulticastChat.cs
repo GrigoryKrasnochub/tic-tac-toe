@@ -10,8 +10,8 @@ namespace Cross
     class UdpMulticastChat
     {
         UdpClient client;
-        const int LOCALPORT = 33388; // порт для приема сообщений
-        const int REMOTEPORT = 33388; // порт для отправки сообщений
+        readonly int LOCALPORT; // порт для приема сообщений
+        readonly int REMOTEPORT; // порт для отправки сообщений
         const int TTL = 20;
         const string HOST = "235.5.5.1"; // хост для групповой рассылки
         IPAddress groupAddress; // адрес для групповой рассылки
@@ -20,8 +20,10 @@ namespace Cross
         // событие о получении сообщения в чате
         public event StringMessageReceiveHandler Chatted;
 
-        public UdpMulticastChat()
+        public UdpMulticastChat(int port)
         {
+            LOCALPORT = port;
+            REMOTEPORT = port;
             groupAddress = IPAddress.Parse(HOST);
 
         }

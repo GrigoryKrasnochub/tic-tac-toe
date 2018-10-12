@@ -29,13 +29,12 @@ namespace Cross
         private int W = 0;
 
         private readonly int _serverPort = 33377;
-        private bool isServer = false;
-        private bool isClient = false;
         Connection _connection;
         Thread _connectionThread;
         Drawer drawer;
         TheGame game;
 
+        private readonly int _chatPort = 33388;
         UdpMulticastChat chat;
         Thread chatThread;
 
@@ -43,8 +42,8 @@ namespace Cross
         {
             InitializeComponent();
             Console.WriteLine(ClientSize);
-            chat = new UdpMulticastChat();
-            chat.Chatted += WriteMulticastMessage;
+            chat = new UdpMulticastChat(_chatPort);
+            chat.Chatted += DisplayMulticastMessage;
             chatThread = new Thread(new ThreadStart(chat.ReceiveMessages));
             chatThread.Start();
         }
@@ -96,8 +95,8 @@ namespace Cross
             if (game.UserTurn(e.X, e.Y) && _connection != null)
             {
                 _connection.SendMove(game.GetXpos(), game.GetYpos());
-                game.WinnerSearcher();
-                game.SetTurn( !game.GetTurn());
+                game.SearchWinner();
+                game.SetTurn(!game.GetTurn());
             }
             
         }
@@ -115,7 +114,7 @@ namespace Cross
             }
         }
 
-        public void WriteMessage(string message)
+        public void DisplayPrivateMessage(string message)
         {
             chatTextBox.Invoke((MethodInvoker) (() => chatTextBox.AppendText("Соперник: " + message + "\n")));
         }
@@ -168,7 +167,7 @@ namespace Cross
             drawer.DrawMap();
             drawer.FillMap(game.getPlayGrounds());
             stageCounter += 1;
-            game.WinnerSearcher();
+            game.SearchWinner();
             game.SetTurn(!game.GetTurn());
 
         }
@@ -192,12 +191,11 @@ namespace Cross
             }
             // запуск сервера
             _connection = new Connection(_serverPort);
-            _connection.Chatted += WriteMessage;
+            _connection.Chatted += DisplayPrivateMessage;
             _connection.Requested += ShowRequestMessage;
             _connection.Moved += DrawEnemyTurn;
             _connectionThread = new Thread(new ThreadStart(_connection.StartServer));
             _connectionThread.Start();
-            isServer = true;
             game.setIsOnlineGame(true);
 
             startServerButton.Text = "Остановить сервер";
@@ -226,12 +224,11 @@ namespace Cross
             }
 
             _connection = new Connection(_serverPort, ip);
-            _connection.Chatted += WriteMessage;
+            _connection.Chatted += DisplayPrivateMessage;
             _connection.GotSettings += GotSettingsHandler;
             _connection.Moved += DrawEnemyTurn;
             _connectionThread = new Thread(new ThreadStart(ConnectServer));
             _connectionThread.Start();
-            isClient = true; //?
         }
 
         private void ConnectServer()
@@ -306,7 +303,7 @@ namespace Cross
             textBox2.Text = "";
         }
 
-        public void WriteMulticastMessage(string ip, string message)
+        public void DisplayMulticastMessage(string ip, string message)
         {
             chatTextBox.Invoke((MethodInvoker)(() => richTextBox1.AppendText(ip + ": " + message + "\n")));
         }
@@ -314,13 +311,9 @@ namespace Cross
 /*
 TODO:
 - пофиксить, что первый ход клиент делает с нолика
-//- убрать остатки графики из основной формы
 - счет
-- хранить значения isClient и isServer в классе Connection
-- сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
+- сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение, с кем игра, чей ход
 - зачеркивать не только первую попавшуюся комбинацию
-//- обработка отказа от игры на клиенте
-//- обрабатывать неудачные подключения (со стороны клиента)
 - изменение и создание поля после установки соединения
 - обрабатывать конкуренцию за mapGraphics и Simbols
 */
