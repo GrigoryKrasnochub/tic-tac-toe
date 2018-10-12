@@ -36,10 +36,17 @@ namespace Cross
         Drawer drawer;
         TheGame game;
 
+        UdpMulticastChat chat;
+        Thread chatThread;
+
         public MainForm()
         {
             InitializeComponent();
             Console.WriteLine(ClientSize);
+            chat = new UdpMulticastChat();
+            chat.Chatted += WriteMulticastMessage;
+            chatThread = new Thread(new ThreadStart(chat.ReceiveMessages));
+            chatThread.Start();
         }
 
         private void button1_Click(object sender, EventArgs e) //Новая
@@ -275,19 +282,47 @@ namespace Cross
         {
             if (_connection != null) _connection.Terminate();
             if (_connectionThread != null) _connectionThread.Abort();
+            if (chat != null) chat.Terminate();
+            if (chatThread != null) chatThread.Abort();
         }
-        /*
-        TODO:
-         - пофиксить, что первый ход клиент делает с нолика
-         //- убрать остатки графики из основной формы
-         - счет
-         - хранить значения isClient и isServer в классе Connection
-         - сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
-         - зачеркивать не только первую попавшуюся комбинацию
-         //- обработка отказа от игры на клиенте
-         //- обрабатывать неудачные подключения (со стороны клиента)
-         - изменение и создание поля после установки соединения
-         - обрабатывать конкуренцию за mapGraphics и Simbols
-        */
+
+        private void sendMessageTextBox2_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SendTextButton2_Click(this, new EventArgs());
+            }
+        }
+
+        private void SendTextButton2_Click(object sender, EventArgs e)
+        {
+            if (chat == null) return;
+            if (textBox2.Text == "") return;
+            string message = "Я: " + textBox2.Text + "\n";
+            richTextBox1.AppendText(message);
+
+            chat.SendMessage(textBox2.Text);
+
+            textBox2.Text = "";
+        }
+
+        public void WriteMulticastMessage(string ip, string message)
+        {
+            chatTextBox.Invoke((MethodInvoker)(() => richTextBox1.AppendText(ip + ": " + message + "\n")));
+        }
+
+/*
+TODO:
+- пофиксить, что первый ход клиент делает с нолика
+//- убрать остатки графики из основной формы
+- счет
+- хранить значения isClient и isServer в классе Connection
+- сделать какой-то лэйбл-индикатор: запущен ли сервер, есть ли подключение
+- зачеркивать не только первую попавшуюся комбинацию
+//- обработка отказа от игры на клиенте
+//- обрабатывать неудачные подключения (со стороны клиента)
+- изменение и создание поля после установки соединения
+- обрабатывать конкуренцию за mapGraphics и Simbols
+*/
     }
 }
