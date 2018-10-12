@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -23,7 +23,6 @@ namespace Cross
                 true это крестики
         */
 
-        private int stageCounter; // Счетчик шагов
         private int X = 0;
         private int Y = 0;
         private int W = 0;
@@ -64,7 +63,6 @@ namespace Cross
             game.SetTurn(true);
             drawer.ClearMap(this.BackColor);
             drawer.DrawMap();
-            stageCounter = 0;
             game.SetIsGameStarted (true);
             game.SetIsGameEnded (false);
 
@@ -99,16 +97,35 @@ namespace Cross
             
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void ResetGameAndMap()
         {
             if (game != null && game.GetIsGameStarted())
             {
                 drawer.ClearMap(this.BackColor);
                 drawer.DrawMap();
-                game.ResetPlayGrounds();
-                stageCounter = 0;
-                game.SetTurn (true);
-                game.SetIsGameEnded(false);
+                game.ResetGame();
+                if (game.getIsOnlineGame())
+                {
+                    game.setYourOnlineTurn(!game.GetYourOnlineTurn());
+                }
+            }
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (game != null && game.GetIsGameStarted() && game.getIsOnlineGame())
+            {
+                if (game.GetIsGameEnded())
+                {
+                    ResetGameAndMap();
+                    _connection.SendResetGameEvent();
+                    return;
+                }
+            }
+            else if (game != null && game.GetIsGameStarted())
+            {
+                ResetGameAndMap();
             }
         }
 
@@ -123,7 +140,6 @@ namespace Cross
             if (dialogResult == DialogResult.Yes)
             {
                 _connection.SendSettings(X, Y, W);
-                stageCounter = 0;
                 game.SetIsGameStarted (true);
                 game.SetIsGameEnded(false);
                 //playGrounds = new int[X, Y];
@@ -149,25 +165,21 @@ namespace Cross
             game = new TheGame(drawer, w, x, y);
             drawer.ClearMap(this.BackColor);
             drawer.DrawMap();
-            stageCounter = 0;
             game.SetIsGameStarted(true);
             game.SetIsGameEnded(false);
             game.ResetPlayGrounds();
-            game.SetTurn (true);
+            game.SetTurn(true);
             game.setIsOnlineGame(true);
             game.setYourOnlineTurn(true);
         }
 
         public void DrawEnemyTurn(int x, int y)
         {
-            // TODO
             game.ChangePlayGrounds(x, y);
             drawer.DrawMap();
             drawer.FillMap(game.getPlayGrounds());
-            stageCounter += 1;
             game.SearchWinner();
             game.SetTurn(!game.GetTurn());
-
         }
 
         //Сервер
@@ -192,6 +204,7 @@ namespace Cross
             _connection.Chatted += DisplayPrivateMessage;
             _connection.Requested += ShowRequestMessage;
             _connection.Moved += DrawEnemyTurn;
+            _connection.ResetSignal += ResetGameAndMap;
             _connectionThread = new Thread(new ThreadStart(_connection.StartServer));
             _connectionThread.Start();
             game.setIsOnlineGame(true);
@@ -225,6 +238,7 @@ namespace Cross
             _connection.Chatted += DisplayPrivateMessage;
             _connection.GotSettings += GotSettingsHandler;
             _connection.Moved += DrawEnemyTurn;
+            _connection.ResetSignal += ResetGameAndMap;
             _connectionThread = new Thread(new ThreadStart(ConnectServer));
             _connectionThread.Start();
         }

@@ -228,9 +228,19 @@ namespace Cross
             isOnlineGame = value;
         }
 
+        public bool getIsOnlineGame()
+        {
+            return isOnlineGame;
+        }
+
         public void setYourOnlineTurn(bool value)
         {
             yourOnlineTurn = value;
+        }
+
+        public bool GetYourOnlineTurn()
+        {
+            return yourOnlineTurn;
         }
 
         public void SetIsGameStarted(bool isGamestr)
@@ -271,6 +281,14 @@ namespace Cross
         public void ResetPlayGrounds()
         {
             playGrounds = new int[X, Y];
+        }
+
+        public void ResetGame()
+        {
+            ResetPlayGrounds();
+            stageCounter = 0;
+            SetTurn(true);
+            SetIsGameEnded(false);
         }
 
         public int GetXpos ()

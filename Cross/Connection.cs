@@ -20,6 +20,7 @@ namespace Cross
         public delegate void StringMessageReceiveHandler(string message);
         public delegate void TurnReceiveHandler(int x, int y);
         public delegate void GameSettingsReceiveHandler(int x, int y, int w);
+        public delegate void ActionHandler();
 
         // событие о получении сообщения в чате
         public event StringMessageReceiveHandler Chatted;
@@ -32,6 +33,9 @@ namespace Cross
 
         // событие о ходе противника
         public event TurnReceiveHandler Moved;
+
+        // событие о сбросе игры
+        public event ActionHandler ResetSignal;
 
         public Connection(int port) { _port = port; }
         public Connection(int port, string ip) { _port = port; _ip = ip; }
@@ -93,9 +97,13 @@ namespace Cross
         {
             byte[] data = Encoding.Unicode.GetBytes("chat" + message);
             _stream.Write(data, 0, data.Length);
-
         }
 
+        public void SendResetGameEvent()
+        {
+            byte[] data = Encoding.Unicode.GetBytes("reset");
+            _stream.Write(data, 0, data.Length);
+        }
 
         private void ProcessConnection()
         {
@@ -119,8 +127,9 @@ namespace Cross
                     if (message == "") continue;
                     Console.WriteLine("Получил сообщение: " + message);
 
-                    // TODO куча ифов для определения типа сообщения и создания нужных событий
+                    // куча ифов для определения типа сообщения и создания нужных событий
                     if (message.StartsWith("chat")) Chatted(message.Substring("chat".Length));
+                    if (message.StartsWith("reset")) ResetSignal();
                     if (message.StartsWith("settings"))
                     {
                         string request_msg = message.Substring("settings".Length);
