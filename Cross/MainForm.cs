@@ -60,6 +60,7 @@ namespace Cross
             W = form.GetW();
             drawer = new Drawer(form.GetX(), form.GetY(), CreateGraphics(), CreateGraphics(), ClientSize.Height,ClientSize.Width,chatTextBox.ClientSize.Width);//Экземпляр рисовалки
             game = new TheGame(drawer,form.GetW(), form.GetX(), form.GetY());
+            game.ResetScore();
             game.SetTurn(true);
             drawer.ClearMap(this.BackColor);
             drawer.DrawMap();
@@ -96,6 +97,10 @@ namespace Cross
                 UpdateScore();
                 game.WhoIsUser="";
                 _connection.SendMove(game.GetXpos(), game.GetYpos());
+            }
+            if (!game.getIsOnlineGame())
+            {
+                game.ResetScore();
             }
             
         }

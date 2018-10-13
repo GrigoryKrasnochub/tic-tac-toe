@@ -342,5 +342,11 @@ namespace Cross
             Console.WriteLine("Противник : " + enemyScore.ToString() + "|" + " ВЫ : " + userScore.ToString());
             return "Противник : " + enemyScore.ToString() + " |"+" ВЫ : " + userScore.ToString();        
         }
+
+        public void ResetScore()
+        {
+            userScore = 0;
+            enemyScore = 0;
+        }
     }
 }
